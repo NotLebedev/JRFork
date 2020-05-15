@@ -1,9 +1,9 @@
-package i.lion.example.slave;
+package org.notlebedev.example.slave;
 
-import i.lion.ByteArrayClassLoader;
-import i.lion.ByteReceiver;
-import i.lion.CustomClassLoaderObjectInputStream;
-import i.lion.FullObjectDump;
+import org.notlebedev.ByteArrayClassLoader;
+import org.notlebedev.ByteReceiver;
+import org.notlebedev.CustomClassLoaderObjectInputStream;
+import org.notlebedev.FullObjectDump;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

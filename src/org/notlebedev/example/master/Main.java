@@ -1,7 +1,7 @@
-package i.lion.example.master;
+package org.notlebedev.example.master;
 
-import i.lion.ByteSender;
-import i.lion.FullObjectDump;
+import org.notlebedev.ByteSender;
+import org.notlebedev.FullObjectDump;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

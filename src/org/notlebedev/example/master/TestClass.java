@@ -1,4 +1,4 @@
-package i.lion.example.master;
+package org.notlebedev.example.master;
 
 import java.io.Serializable;
 import java.util.List;
