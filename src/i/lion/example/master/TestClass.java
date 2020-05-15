@@ -1,7 +1,6 @@
 package i.lion.example.master;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 public class TestClass implements Serializable {
