@@ -6,14 +6,14 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.URL;
 
-public class FullObjectDump<T extends Serializable> {
+public class FullObjectDump implements Serializable {
 
-    private final T object;
+    private final String name;
     private final byte[] bytecode;
     private final byte[] objectData;
 
-    public FullObjectDump(T object) throws IOException {
-        this.object = object;
+    public FullObjectDump(Serializable object) throws IOException {
+        this.name = object.getClass().getCanonicalName();
 
         URL url = object.getClass().getResource(object.getClass().getSimpleName() + ".class");
         bytecode = url.openStream().readAllBytes();
@@ -33,5 +33,9 @@ public class FullObjectDump<T extends Serializable> {
 
     public byte[] getObjectData() {
         return objectData;
+    }
+
+    public String getName() {
+        return name;
     }
 }
