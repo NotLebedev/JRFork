@@ -2,7 +2,6 @@ package i.lion;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -11,8 +10,8 @@ public class ByteReceiver extends Thread {
     private final Socket connection;
     private final DataInputStream in;
 
-    public ByteReceiver(InetAddress remoteAddress) throws IOException {
-        socket = new ServerSocket(4040);
+    public ByteReceiver(int port) throws IOException {
+        socket = new ServerSocket(port);
         connection = socket.accept();
         in = new DataInputStream(connection.getInputStream());
     }

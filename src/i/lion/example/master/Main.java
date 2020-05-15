@@ -11,7 +11,7 @@ public class Main {
         String str = "Hello, World!";
 
         try {
-            ByteSender sender = new ByteSender(InetAddress.getLocalHost());
+            ByteSender sender = new ByteSender(InetAddress.getLocalHost(), 4040);
             sender.sendData(str.getBytes());
             sender.close();
         } catch (IOException e) {

@@ -9,8 +9,8 @@ public class ByteSender {
     private final Socket socket;
     private final DataOutputStream out;
 
-    public ByteSender(InetAddress remoteAddress) throws IOException {
-        socket = new Socket(remoteAddress, 4040);
+    public ByteSender(InetAddress remoteAddress, int port) throws IOException {
+        socket = new Socket(remoteAddress, port);
         out  = new DataOutputStream(socket.getOutputStream());
     }
 
