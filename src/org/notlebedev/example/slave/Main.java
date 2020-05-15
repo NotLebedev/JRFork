@@ -4,6 +4,7 @@ import org.notlebedev.ByteArrayClassLoader;
 import org.notlebedev.ByteReceiver;
 import org.notlebedev.CustomClassLoaderObjectInputStream;
 import org.notlebedev.FullObjectDump;
+import org.notlebedev.example.master.TestInterface;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -35,7 +36,12 @@ public class Main {
 
             o = in.readObject();
 
-            System.out.println(o.getClass().getConstructors()[0].toString());
+            if (o instanceof TestInterface) {
+                ((TestInterface) o).printData();
+                System.out.println(((TestInterface) o).square(12));
+            } else {
+                System.out.println("Not ritght");
+            }
 
             receiver.close();
         } catch (IOException | ClassNotFoundException e) {

@@ -3,7 +3,7 @@ package org.notlebedev.example.master;
 import java.io.Serializable;
 import java.util.List;
 
-public class TestClass implements Serializable {
+public class TestClass implements Serializable, TestInterface {
 
     private final String str;
     private final Integer iC;
@@ -31,5 +31,15 @@ public class TestClass implements Serializable {
 
     public List<Integer> getArrayList() {
         return arrayList;
+    }
+
+    @Override
+    public void printData() {
+        System.out.println(str + " " + iC.toString() + " " + i + " " + arrayList.toString());
+    }
+
+    @Override
+    public int square(int x) {
+        return x * x;
     }
 }
