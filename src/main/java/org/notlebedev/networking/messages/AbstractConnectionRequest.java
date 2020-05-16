@@ -10,4 +10,12 @@ public class AbstractConnectionRequest implements AbstractMessage {
     public int getPort() {
         return port;
     }
+
+    @Override
+    public JSONMessageHolder toJSON() {
+        var json = new JSONMessageHolder();
+        json.setMessageType(JSONMessageHolder.MessageType.ConnectionRequest);
+        json.setPort(port);
+        return json;
+    }
 }

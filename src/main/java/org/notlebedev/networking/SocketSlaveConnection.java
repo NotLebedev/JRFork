@@ -1,28 +1,21 @@
 package org.notlebedev.networking;
 
-import org.notlebedev.networking.messages.JSONMessageFactory;
-import org.notlebedev.networking.messages.JSONMessageHolder;
-import org.notlebedev.networking.messages.JSONMessageParser;
+import org.notlebedev.networking.messages.*;
 
 import java.io.IOException;
 
 public class SocketSlaveConnection implements SlaveConnection {
     private final StringSender out;
     private final StringReceiver in;
-    private final JSONMessageFactory messageFactory;
-    private final JSONMessageParser messageParser;
-
 
     public SocketSlaveConnection(int port) throws IOException {
-        messageFactory = new JSONMessageFactory();
-        messageParser = new JSONMessageParser();
         in = new StringReceiver(port);
-        JSONMessageHolder request = messageParser.parseJSONMessage(getString());
-        if (request.getMessageType() != JSONMessageHolder.MessageType.ConnectionRequest)
+        AbstractMessage request = JSONMessageHolder.parseJSONMessage(getString()).toAbstractMessage();
+        if (!(request instanceof AbstractConnectionRequest))
             throw new IOException();
 
-        out = new StringSender(in.getAddress(), request.getPort());
-        sendString(messageFactory.buildConnectionEstablishedMessage());
+        out = new StringSender(in.getAddress(), ((AbstractConnectionRequest) request).getPort());
+        sendString((new AbstractConnectionEstablished()).toJSON().toString());
     }
 
     private void sendString(String string) throws IOException {
