@@ -2,6 +2,7 @@ package org.notlebedev.networking;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -14,6 +15,10 @@ public class ByteReceiver extends Thread {
         socket = new ServerSocket(port);
         connection = socket.accept();
         in = new DataInputStream(connection.getInputStream());
+    }
+
+    public InetAddress getAddress() {
+        return connection.getInetAddress();
     }
 
     public byte[] getData() throws IOException {

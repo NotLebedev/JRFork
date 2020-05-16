@@ -5,6 +5,8 @@ import org.notlebedev.networking.ByteReceiver;
 import org.notlebedev.CustomClassLoaderObjectInputStream;
 import org.notlebedev.FullObjectDump;
 import org.notlebedev.example.master.TestInterface;
+import org.notlebedev.networking.SlaveConnection;
+import org.notlebedev.networking.SocketSlaveConnection;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -19,7 +21,7 @@ public class Main {
         ByteArrayClassLoader cll = new ByteArrayClassLoader(new URL[0], ClassLoader.getSystemClassLoader());
         Thread.currentThread().setContextClassLoader(cll);
         try {
-            ByteReceiver receiver = new ByteReceiver(4040);
+            /*ByteReceiver receiver = new ByteReceiver(4040);
 
             ByteArrayInputStream bis = new ByteArrayInputStream(receiver.getData());
             ObjectInput in = new ObjectInputStream(bis);
@@ -43,8 +45,9 @@ public class Main {
                 System.out.println("Not ritght");
             }
 
-            receiver.close();
-        } catch (IOException | ClassNotFoundException e) {
+            receiver.close();*/
+            SlaveConnection connection = new SocketSlaveConnection(4040);
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
