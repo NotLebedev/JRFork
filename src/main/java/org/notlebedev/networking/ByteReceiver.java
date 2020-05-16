@@ -1,4 +1,4 @@
-package org.notlebedev;
+package org.notlebedev.networking;
 
 import java.io.DataInputStream;
 import java.io.IOException;

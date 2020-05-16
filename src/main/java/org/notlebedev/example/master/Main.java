@@ -1,6 +1,6 @@
 package org.notlebedev.example.master;
 
-import org.notlebedev.ByteSender;
+import org.notlebedev.networking.ByteSender;
 import org.notlebedev.FullObjectDump;
 
 import java.io.ByteArrayOutputStream;

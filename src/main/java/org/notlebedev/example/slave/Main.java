@@ -1,7 +1,7 @@
 package org.notlebedev.example.slave;
 
 import org.notlebedev.ByteArrayClassLoader;
-import org.notlebedev.ByteReceiver;
+import org.notlebedev.networking.ByteReceiver;
 import org.notlebedev.CustomClassLoaderObjectInputStream;
 import org.notlebedev.FullObjectDump;
 import org.notlebedev.example.master.TestInterface;
