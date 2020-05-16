@@ -7,8 +7,8 @@ import org.notlebedev.networking.messages.JSONMessageParser;
 import java.io.IOException;
 
 public class SocketSlaveConnection implements SlaveConnection {
-    private final ByteSender out;
-    private final ByteReceiver in;
+    private final StringSender out;
+    private final StringReceiver in;
     private final JSONMessageFactory messageFactory;
     private final JSONMessageParser messageParser;
 
@@ -16,21 +16,21 @@ public class SocketSlaveConnection implements SlaveConnection {
     public SocketSlaveConnection(int port) throws IOException {
         messageFactory = new JSONMessageFactory();
         messageParser = new JSONMessageParser();
-        in = new ByteReceiver(port);
+        in = new StringReceiver(port);
         JSONMessageHolder request = messageParser.parseJSONMessage(getString());
         if (request.getMessageType() != JSONMessageHolder.MessageType.ConnectionRequest)
             throw new IOException();
 
-        out = new ByteSender(in.getAddress(), request.getPort());
+        out = new StringSender(in.getAddress(), request.getPort());
         sendString(messageFactory.buildConnectionEstablishedMessage());
     }
 
     private void sendString(String string) throws IOException {
-        out.sendData(string.getBytes());
+        out.sendData(string);
     }
 
     private String getString() throws IOException {
-        return new String(in.getData());
+        return in.getData();
     }
 
     @Override

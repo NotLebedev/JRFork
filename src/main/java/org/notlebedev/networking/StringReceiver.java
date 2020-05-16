@@ -8,12 +8,12 @@ import java.net.Socket;
 public class StringReceiver {
     private final ServerSocket socket;
     private final Socket connection;
-    private final BufferedReader  in;
+    private final DataInputStream  in;
 
     public StringReceiver(int port) throws IOException {
         socket = new ServerSocket(port);
         connection = socket.accept();
-        in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        in = new DataInputStream(connection.getInputStream());
     }
 
     public InetAddress getAddress() {
@@ -21,7 +21,8 @@ public class StringReceiver {
     }
 
     public String getData() throws IOException {
-        return in.readLine();
+        int messageSize = in.readInt();
+        return new String(in.readNBytes(messageSize));
     }
 
     public void close() throws IOException {

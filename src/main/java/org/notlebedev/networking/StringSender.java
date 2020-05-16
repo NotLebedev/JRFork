@@ -2,21 +2,22 @@ package org.notlebedev.networking;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 
 public class StringSender {
     private final Socket socket;
-    private final OutputStreamWriter out;
+    private final DataOutputStream out;
 
     public StringSender(InetAddress remoteAddress, int port) throws IOException {
         socket = new Socket(remoteAddress, port);
-        out  = new OutputStreamWriter(socket.getOutputStream());
+        out  = new DataOutputStream(socket.getOutputStream());
     }
 
     public void sendData(String message) throws IOException {
-        out.write(message + '\n');
+        out.writeInt(message.getBytes().length);
+        out.write(message.getBytes(), 0, message.getBytes().length);
+        out.flush();
     }
 
     public void close() throws IOException {

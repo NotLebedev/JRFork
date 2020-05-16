@@ -9,29 +9,29 @@ import java.net.InetAddress;
 
 public class SocketMasterConnection implements MasterConnection {
 
-    private final ByteSender out;
-    private final ByteReceiver in;
+    private final StringSender out;
+    private final StringReceiver in;
     private final JSONMessageFactory messageFactory;
     private final JSONMessageParser messageParser;
 
     public SocketMasterConnection(InetAddress slaveAddress, int slavePort, int inPort) throws IOException {
-        out = new ByteSender(slaveAddress, slavePort);
+        out = new StringSender(slaveAddress, slavePort);
         messageFactory = new JSONMessageFactory();
         messageParser = new JSONMessageParser();
         sendString(messageFactory.buildConnectionRequestMessage(inPort));
 
-        in = new ByteReceiver(inPort);
+        in = new StringReceiver(inPort);
         JSONMessageHolder message = messageParser.parseJSONMessage(getString());
         if (message.getMessageType() != JSONMessageHolder.MessageType.ConnectionEstablished)
             throw new IOException();
     }
 
     private void sendString(String string) throws IOException {
-        out.sendData(string.getBytes());
+        out.sendData(string);
     }
 
     private String getString() throws IOException {
-        return new String(in.getData());
+        return in.getData();
     }
 
     @Override
