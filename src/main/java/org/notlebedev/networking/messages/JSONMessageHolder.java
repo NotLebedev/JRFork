@@ -1,27 +1,32 @@
 package org.notlebedev.networking.messages;
 
+import java.util.function.Function;
+
 public class JSONMessageHolder {
     private MessageType messageType;
     private int port;
 
-    public MessageType getMessageType() {
-        return messageType;
-    }
-
     void setMessageType(MessageType messageType) {
         this.messageType = messageType;
-    }
-
-    public int getPort() {
-        return port;
     }
 
     void setPort(int port) {
         this.port = port;
     }
 
-    public enum MessageType {
-        ConnectionRequest,
-        ConnectionEstablished
+    public AbstractMessage toAbstractMessage() {
+        return messageType.toAbstractMessageFunction.apply(this);
+    }
+
+    private enum MessageType {
+        ConnectionRequest(jsonMessageHolder -> new AbstractConnectionRequest(jsonMessageHolder.port)),
+        ConnectionEstablished(jsonMessageHolder -> new AbstractConnectionEstablished());
+
+        private final Function<JSONMessageHolder, AbstractMessage> toAbstractMessageFunction;
+
+        MessageType(Function<JSONMessageHolder, AbstractMessage> toAbstractMessageFunction) {
+            this.toAbstractMessageFunction = toAbstractMessageFunction;
+        }
+
     }
 }
