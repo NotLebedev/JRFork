@@ -18,6 +18,8 @@ public class SocketMasterConnection implements MasterConnection {
         AbstractMessage message = JSONMessageHolder.parseJSONMessage(getString()).toAbstractMessage();
         if (!(message instanceof AbstractConnectionEstablished))
             throw new IOException();
+
+        setTimeout(0);
     }
 
     private void sendString(String string) throws IOException {
@@ -28,6 +30,11 @@ public class SocketMasterConnection implements MasterConnection {
         return in.getData();
     }
 
+    /**
+     * Set timeout for all ingoing and outgoing networking operations, by default timeout is infinite
+     * @param timeout non-negative timeout or zero for infinite timeout
+     * @throws SocketException connection was in incorrect state and thus could not be modified
+     */
     @Override
     public void setTimeout(int timeout) throws SocketException {
         in.setTimeout(timeout);
