@@ -1,5 +1,6 @@
 package org.notlebedev.example.master;
 
+import org.notlebedev.InstrumentationHook;
 import org.notlebedev.networking.ByteSender;
 import org.notlebedev.FullObjectDump;
 import org.notlebedev.networking.MasterConnection;
@@ -8,6 +9,7 @@ import org.notlebedev.networking.SocketMasterConnection;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.lang.instrument.Instrumentation;
 import java.net.InetAddress;
 import java.util.Arrays;
 
@@ -15,6 +17,8 @@ public class Main {
 
     public static void main (String []args) {
         var test = new TestClass("Hello, world!", 1, 2, Arrays.asList(1, 2, 3, 4));
+        Instrumentation inst = InstrumentationHook.getInstrumentation();
+        Arrays.stream(inst.getAllLoadedClasses()).forEach(System.out::println);
 
         try {
             /*ByteSender sender = new ByteSender(InetAddress.getLocalHost(), 4040);

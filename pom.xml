@@ -6,7 +6,11 @@
 
     <groupId>org.notlebedev</groupId>
     <artifactId>JRFork</artifactId>
+    <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
+    <modules>
+        <module>InstrumentationProvider</module>
+    </modules>
 
     <dependencies>
         <dependency>
