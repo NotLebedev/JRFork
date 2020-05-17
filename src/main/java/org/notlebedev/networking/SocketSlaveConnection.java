@@ -30,13 +30,14 @@ public class SocketSlaveConnection implements SlaveConnection {
     }
 
     @Override
-    public AbstractMessage listenRequest() {
-        return null;
+    public AbstractMessage listenRequest() throws IOException {
+        JSONMessageHolder jsonMessage = JSONMessageHolder.parseJSONMessage(getString());
+        return jsonMessage.toAbstractMessage();
     }
 
     @Override
-    public void sendResponse(AbstractMessage message) {
-
+    public void sendResponse(AbstractMessage message) throws IOException {
+        sendString(message.toJSON().toString());
     }
 
     /**
