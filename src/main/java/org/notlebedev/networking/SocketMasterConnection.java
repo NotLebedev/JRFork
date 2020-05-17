@@ -33,12 +33,16 @@ public class SocketMasterConnection implements MasterConnection {
     }
 
     @Override
-    public String sendRequest(AbstractMessage request) {
-        return null;
+    public AbstractMessage sendRequest(AbstractMessage request) throws IOException {
+        sendString(request.toJSON().toString());
+
+        JSONMessageHolder response = JSONMessageHolder.parseJSONMessage(getString());
+        return response.toAbstractMessage();
     }
 
     @Override
-    public void close() {
-
+    public void close() throws IOException {
+        in.close();
+        out.close();
     }
 }
