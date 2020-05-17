@@ -1,11 +1,11 @@
 package org.notlebedev.networking;
 
-import org.notlebedev.networking.messages.JSONMessageHolder;
+import org.notlebedev.networking.messages.AbstractMessage;
 
 public interface SlaveConnection {
 
-    String listenRequest();
-    void sendResponse(JSONMessageHolder message);
+    AbstractMessage listenRequest();
+    void sendResponse(AbstractMessage message);
     void close();
 
 }

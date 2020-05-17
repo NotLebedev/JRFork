@@ -27,12 +27,12 @@ public class SocketSlaveConnection implements SlaveConnection {
     }
 
     @Override
-    public String listenRequest() {
+    public AbstractMessage listenRequest() {
         return null;
     }
 
     @Override
-    public void sendResponse(JSONMessageHolder message) {
+    public void sendResponse(AbstractMessage message) {
 
     }
 

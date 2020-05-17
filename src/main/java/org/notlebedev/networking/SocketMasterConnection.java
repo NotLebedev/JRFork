@@ -33,7 +33,7 @@ public class SocketMasterConnection implements MasterConnection {
     }
 
     @Override
-    public String sendRequest(JSONMessageHolder request) {
+    public String sendRequest(AbstractMessage request) {
         return null;
     }
 
