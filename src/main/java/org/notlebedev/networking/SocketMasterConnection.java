@@ -4,6 +4,7 @@ import org.notlebedev.networking.messages.*;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.SocketException;
 
 public class SocketMasterConnection implements MasterConnection {
     private final StringSender out;
@@ -28,8 +29,9 @@ public class SocketMasterConnection implements MasterConnection {
     }
 
     @Override
-    public void setTimeout(int timeout) {
-
+    public void setTimeout(int timeout) throws SocketException {
+        in.setTimeout(timeout);
+        out.setTimeout(timeout);
     }
 
     @Override

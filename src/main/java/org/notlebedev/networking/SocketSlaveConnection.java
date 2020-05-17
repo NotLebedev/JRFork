@@ -3,6 +3,7 @@ package org.notlebedev.networking;
 import org.notlebedev.networking.messages.*;
 
 import java.io.IOException;
+import java.net.SocketException;
 
 public class SocketSlaveConnection implements SlaveConnection {
     private final StringSender out;
@@ -34,6 +35,12 @@ public class SocketSlaveConnection implements SlaveConnection {
     @Override
     public void sendResponse(AbstractMessage message) {
 
+    }
+
+    @Override
+    public void setTimeout(int timeout) throws SocketException {
+        in.setTimeout(timeout);
+        out.setTimeout(timeout);
     }
 
     @Override

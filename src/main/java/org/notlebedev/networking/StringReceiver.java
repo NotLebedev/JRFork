@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class StringReceiver {
     private final ServerSocket socket;
@@ -23,6 +24,11 @@ public class StringReceiver {
     public String getData() throws IOException {
         int messageSize = in.readInt();
         return new String(in.readNBytes(messageSize));
+    }
+
+    public void setTimeout(int timeout) throws SocketException {
+        connection.setSoTimeout(timeout);
+        socket.setSoTimeout(timeout);
     }
 
     public void close() throws IOException {

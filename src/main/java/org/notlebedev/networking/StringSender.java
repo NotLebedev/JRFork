@@ -4,6 +4,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class StringSender {
     private final Socket socket;
@@ -18,6 +19,10 @@ public class StringSender {
         out.writeInt(message.getBytes().length);
         out.write(message.getBytes(), 0, message.getBytes().length);
         out.flush();
+    }
+
+    public void setTimeout(int timeout) throws SocketException {
+        socket.setSoTimeout(timeout);
     }
 
     public void close() throws IOException {
