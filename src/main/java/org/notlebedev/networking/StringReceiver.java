@@ -6,7 +6,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
-public class StringReceiver {
+class StringReceiver {
     private final ServerSocket socket;
     private final Socket connection;
     private final DataInputStream  in;

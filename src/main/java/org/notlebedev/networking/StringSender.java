@@ -6,7 +6,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 
-public class StringSender {
+class StringSender {
     private final Socket socket;
     private final DataOutputStream out;
 

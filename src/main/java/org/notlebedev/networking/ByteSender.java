@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 
+@Deprecated
 public class ByteSender {
     private final Socket socket;
     private final DataOutputStream out;

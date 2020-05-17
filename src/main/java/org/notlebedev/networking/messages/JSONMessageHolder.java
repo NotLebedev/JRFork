@@ -1,7 +1,6 @@
 package org.notlebedev.networking.messages;
 
 import com.google.gson.Gson;
-import org.notlebedev.networking.StringSender;
 
 import java.util.function.Function;
 
