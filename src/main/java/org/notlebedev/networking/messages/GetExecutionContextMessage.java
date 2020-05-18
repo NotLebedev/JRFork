@@ -1,10 +1,10 @@
 package org.notlebedev.networking.messages;
 
-public class AbstractConnectionEstablished implements AbstractMessage {
+public class GetExecutionContextMessage implements AbstractMessage {
     @Override
     public JSONMessageHolder toJSON() {
         var json = new JSONMessageHolder();
-        json.setMessageType(JSONMessageHolder.MessageType.ConnectionEstablished);
+        json.setMessageType(JSONMessageHolder.MessageType.GetExecutionContext);
         return json;
     }
 }

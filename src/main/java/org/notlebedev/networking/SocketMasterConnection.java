@@ -12,11 +12,11 @@ public class SocketMasterConnection implements MasterConnection {
 
     public SocketMasterConnection(InetAddress slaveAddress, int slavePort, int inPort) throws IOException {
         out = new StringSender(slaveAddress, slavePort);
-        sendString((new AbstractConnectionRequest(inPort)).toJSON().toString());
+        sendString((new ConnectionRequestMessage(inPort)).toJSON().toString());
 
         in = new StringReceiver(inPort);
         AbstractMessage message = JSONMessageHolder.parseJSONMessage(getString()).toAbstractMessage();
-        if (!(message instanceof AbstractConnectionEstablished))
+        if (!(message instanceof ConnectionEstablishedMessage))
             throw new IOException();
 
         setTimeout(0);
