@@ -2,11 +2,13 @@ package org.notlebedev.networking.messages;
 
 import com.google.gson.Gson;
 
+import java.util.Arrays;
 import java.util.function.Function;
 
 public class JSONMessageHolder {
     private MessageType messageType;
     private int port;
+    private String[] classNames;
 
     void setMessageType(MessageType messageType) {
         this.messageType = messageType;
@@ -18,6 +20,10 @@ public class JSONMessageHolder {
 
     public AbstractMessage toAbstractMessage() {
         return messageType.toAbstractMessageFunction.apply(this);
+    }
+
+    public void setClassNames(String[] classNames) {
+        this.classNames = classNames;
     }
 
     private static class LazyHolder {
@@ -36,7 +42,9 @@ public class JSONMessageHolder {
     enum MessageType {
         ConnectionRequest(jsonMessageHolder -> new ConnectionRequestMessage(jsonMessageHolder.port)),
         ConnectionEstablished(jsonMessageHolder -> new ConnectionEstablishedMessage()),
-        GetExecutionContext(jsonMessageHolder -> new GetExecutionContextMessage());
+        GetExecutionContext(jsonMessageHolder -> new GetExecutionContextMessage()),
+        SendExecutionContext(jsonMessageHolder ->
+                new SendExecutionContextMessage(Arrays.asList(jsonMessageHolder.classNames)));
 
         private final Function<JSONMessageHolder, AbstractMessage> toAbstractMessageFunction;
 
