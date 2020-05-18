@@ -1,9 +1,9 @@
 package org.notlebedev.networking.messages;
 
-public class AbstractConnectionRequest implements AbstractMessage {
+public class ConnectionRequestMessage implements AbstractMessage {
     private final int port;
 
-    public AbstractConnectionRequest(int port) {
+    public ConnectionRequestMessage(int port) {
         this.port = port;
     }
 

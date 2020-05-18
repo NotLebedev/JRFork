@@ -34,8 +34,8 @@ public class JSONMessageHolder {
     }
 
     enum MessageType {
-        ConnectionRequest(jsonMessageHolder -> new AbstractConnectionRequest(jsonMessageHolder.port)),
-        ConnectionEstablished(jsonMessageHolder -> new AbstractConnectionEstablished());
+        ConnectionRequest(jsonMessageHolder -> new ConnectionRequestMessage(jsonMessageHolder.port)),
+        ConnectionEstablished(jsonMessageHolder -> new ConnectionEstablishedMessage());
 
         private final Function<JSONMessageHolder, AbstractMessage> toAbstractMessageFunction;
 

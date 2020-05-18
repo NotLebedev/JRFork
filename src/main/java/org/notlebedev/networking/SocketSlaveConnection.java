@@ -12,11 +12,11 @@ public class SocketSlaveConnection implements SlaveConnection {
     public SocketSlaveConnection(int port) throws IOException {
         in = new StringReceiver(port);
         AbstractMessage request = JSONMessageHolder.parseJSONMessage(getString()).toAbstractMessage();
-        if (!(request instanceof AbstractConnectionRequest))
+        if (!(request instanceof ConnectionRequestMessage))
             throw new IOException();
 
-        out = new StringSender(in.getAddress(), ((AbstractConnectionRequest) request).getPort());
-        sendString((new AbstractConnectionEstablished()).toJSON().toString());
+        out = new StringSender(in.getAddress(), ((ConnectionRequestMessage) request).getPort());
+        sendString((new ConnectionEstablishedMessage()).toJSON().toString());
 
         setTimeout(0);
     }

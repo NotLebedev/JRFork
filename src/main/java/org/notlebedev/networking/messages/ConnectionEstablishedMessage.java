@@ -1,6 +1,6 @@
 package org.notlebedev.networking.messages;
 
-public class AbstractConnectionEstablished implements AbstractMessage {
+public class ConnectionEstablishedMessage implements AbstractMessage {
     @Override
     public JSONMessageHolder toJSON() {
         var json = new JSONMessageHolder();
