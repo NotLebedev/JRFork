@@ -35,7 +35,8 @@ public class JSONMessageHolder {
 
     enum MessageType {
         ConnectionRequest(jsonMessageHolder -> new ConnectionRequestMessage(jsonMessageHolder.port)),
-        ConnectionEstablished(jsonMessageHolder -> new ConnectionEstablishedMessage());
+        ConnectionEstablished(jsonMessageHolder -> new ConnectionEstablishedMessage()),
+        GetExecutionContext(jsonMessageHolder -> new GetExecutionContextMessage());
 
         private final Function<JSONMessageHolder, AbstractMessage> toAbstractMessageFunction;
 
