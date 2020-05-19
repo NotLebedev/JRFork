@@ -1,5 +1,6 @@
 package org.notlebedev;
 
+import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,5 +32,14 @@ public class ExecutionContext {
         Set<Class> duplicate = new HashSet<>(loadedClasses);
         duplicate.removeIf(clazz -> presentClassNames.contains(clazz.getName()));
         return duplicate;
+    }
+
+    public static Map<String, byte[]> toBytecodes(Set<Class> classes) throws IOException {
+        var result = new HashMap<String, byte[]>(classes.size());
+        for (Class clazz : classes) {
+            byte[] bytecode = clazz.getResource(clazz.getSimpleName() + ".class").openStream().readAllBytes();
+            result.put(clazz.getName(), bytecode);
+        }
+        return result;
     }
 }
