@@ -1,4 +1,4 @@
-package org.notlebedev.example.master;
+package org.notlebedev;
 
 public interface TestInterface {
 

@@ -1,18 +1,14 @@
-package org.notlebedev.example.slave;
+package org.notlebedev;
 
-import org.notlebedev.ByteArrayClassLoader;
-import org.notlebedev.networking.ByteReceiver;
-import org.notlebedev.CustomClassLoaderObjectInputStream;
-import org.notlebedev.FullObjectDump;
-import org.notlebedev.example.master.TestInterface;
 import org.notlebedev.networking.SlaveConnection;
 import org.notlebedev.networking.SocketSlaveConnection;
+import org.notlebedev.networking.messages.*;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
+import java.lang.instrument.Instrumentation;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
 
@@ -20,6 +16,8 @@ public class Main {
     public static void main(String[] args) {
         ByteArrayClassLoader cll = new ByteArrayClassLoader(new URL[0], ClassLoader.getSystemClassLoader());
         Thread.currentThread().setContextClassLoader(cll);
+
+        Instrumentation inst = InstrumentationHook.getInstrumentation();
         try {
             /*ByteReceiver receiver = new ByteReceiver(4040);
 
@@ -47,6 +45,17 @@ public class Main {
 
             receiver.close();*/
             SlaveConnection connection = new SocketSlaveConnection(4040);
+            AbstractMessage message = connection.listenRequest();
+            if(message instanceof GetExecutionContextMessage) {
+                List<String> context = new ArrayList<>((new ExecutionContext(inst)).getExtraLoadedClassNames());
+                var response = new SendExecutionContextMessage(context);
+                connection.sendResponse(response);
+                message = connection.listenRequest();
+                if(message instanceof LoadClassesMessage) {
+                    ((LoadClassesMessage) message).getClassBytecodes().forEach(cll::addClass);
+                }
+                connection.sendResponse(new ConnectionEstablishedMessage());
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

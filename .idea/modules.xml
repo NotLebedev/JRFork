@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/InstrumentationProvider/InstrumentationProvider.iml" filepath="$PROJECT_DIR$/InstrumentationProvider/InstrumentationProvider.iml" />
       <module fileurl="file://$PROJECT_DIR$/JRFork.iml" filepath="$PROJECT_DIR$/JRFork.iml" />
+      <module fileurl="file://$PROJECT_DIR$/example/Master/Master.iml" filepath="$PROJECT_DIR$/example/Master/Master.iml" />
+      <module fileurl="file://$PROJECT_DIR$/example/Slave/Slave.iml" filepath="$PROJECT_DIR$/example/Slave/Slave.iml" />
     </modules>
   </component>
 </project>
