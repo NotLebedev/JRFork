@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.lang.instrument.Instrumentation;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @SuppressWarnings("rawtypes")
 public class ExecutionContext {
@@ -18,9 +17,7 @@ public class ExecutionContext {
             "java",
             "sun",
             "javax",
-            "com",
             "jdk",
-            "org"
     };
 
     public ExecutionContext(Instrumentation instrumentation) {
@@ -54,6 +51,8 @@ public class ExecutionContext {
     public static Map<String, byte[]> toBytecodes(Set<Class> classes) throws IOException {
         var result = new HashMap<String, byte[]>(classes.size());
         for (Class clazz : classes) {
+            if (clazz.isSynthetic())
+                continue;
             InputStream byteIn = clazz.getResourceAsStream(
                     clazz.getTypeName().replace(clazz.getPackageName() + ".", "") + ".class");
             result.put(clazz.getName(), byteIn.readAllBytes());
