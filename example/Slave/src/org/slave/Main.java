@@ -1,5 +1,8 @@
-package org.notlebedev;
+package org.slave;
 
+import org.notlebedev.ByteArrayClassLoader;
+import org.notlebedev.ExecutionContext;
+import org.notlebedev.InstrumentationHook;
 import org.notlebedev.networking.SlaveConnection;
 import org.notlebedev.networking.SocketSlaveConnection;
 import org.notlebedev.networking.messages.*;
@@ -52,6 +55,7 @@ public class Main {
                 connection.sendResponse(response);
                 message = connection.listenRequest();
                 if(message instanceof LoadClassesMessage) {
+                    ((LoadClassesMessage) message).getClassBytecodes().forEach((str,bytes) -> System.out.println(str));
                     ((LoadClassesMessage) message).getClassBytecodes().forEach(cll::addClass);
                 }
                 connection.sendResponse(new ConnectionEstablishedMessage());

@@ -1,4 +1,4 @@
-package org.notlebedev;
+package org.master;
 
 import java.io.Serializable;
 import java.util.List;
