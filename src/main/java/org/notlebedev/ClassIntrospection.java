@@ -8,27 +8,47 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.regex.MatchResult;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class ClassIntrospection extends ClassVisitor {
     private final Set<Class<?>> usedClasses;
     private final Set<Class<?>> classesInspected;
+    private final List<Exception> exceptions;
 
     public ClassIntrospection() {
         super(Opcodes.ASM7);
         usedClasses = new HashSet<>();
         classesInspected = new HashSet<>();
+        exceptions = new ArrayList<>();
     }
 
     @Override
     public FieldVisitor visitField(int access, String name, String descriptor, String signature, Object value) {
         try {
-            System.out.println(forName(descriptor));
+            usedClasses.add(forName(descriptor));
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            exceptions.add(e);
         }
-        System.out.println(signature);
+        if(signature != null)
+            try {
+                usedClasses.addAll(forSignature(signature));
+            } catch (ClassNotFoundException e) {
+                exceptions.add(e);
+            }
         return super.visitField(access, name, descriptor, signature, value);
+    }
+
+    private final static Pattern pattern = Pattern.compile("<(.*?;)+>");
+    private static Set<Class<?>> forSignature(String signature) throws ClassNotFoundException {
+        Matcher matcher = pattern.matcher(signature);
+        var result = new HashSet<Class<?>>();
+        for (MatchResult matchResult : matcher.results().collect(Collectors.toList())) {
+            result.add(forName(matchResult.toString()));
+        }
+        return result;
     }
 
     private static Class<?> forName(String name) throws ClassNotFoundException {
