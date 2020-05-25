@@ -1,9 +1,12 @@
 package org.notlebedev;
 
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Opcodes;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -14,15 +17,27 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class ClassIntrospection extends ClassVisitor {
+    private final Class<?> clazz;
     private final Set<Class<?>> usedClasses;
     private final Set<Class<?>> classesInspected;
     private final List<Exception> exceptions;
 
-    public ClassIntrospection() {
+    public ClassIntrospection(Class<?> clazz, Set<Class<?>> omitClasses) throws SyntheticClassException {
         super(Opcodes.ASM7);
         usedClasses = new HashSet<>();
-        classesInspected = new HashSet<>();
         exceptions = new ArrayList<>();
+        classesInspected = new HashSet<>(omitClasses);
+        this.clazz = clazz;
+        if (clazz.isSynthetic())
+            throw new SyntheticClassException();
+    }
+
+    public Set<Class<?>> getUsedClasses() throws IOException {
+        InputStream byteIn = clazz.getResourceAsStream(
+                clazz.getTypeName().replace(clazz.getPackageName() + ".", "") + ".class");
+        var cr = new ClassReader(byteIn);
+        cr.accept(this, 0);
+        return usedClasses;
     }
 
     @Override
@@ -41,13 +56,19 @@ public class ClassIntrospection extends ClassVisitor {
         return super.visitField(access, name, descriptor, signature, value);
     }
 
-    private final static Pattern pattern = Pattern.compile("<(.*?;)+>");
+    private final static Pattern pattern1 = Pattern.compile("<(.*?)>");
+    private final static Pattern pattern2 = Pattern.compile("(.*?;)");
     private static Set<Class<?>> forSignature(String signature) throws ClassNotFoundException {
-        Matcher matcher = pattern.matcher(signature);
         var result = new HashSet<Class<?>>();
-        for (MatchResult matchResult : matcher.results().collect(Collectors.toList())) {
-            result.add(forName(matchResult.toString()));
-        }
+        Matcher matcher = pattern1.matcher(signature);
+        if(!matcher.find())
+            throw new ClassNotFoundException();
+        matcher = pattern2.matcher(matcher.group(1));
+        if(!matcher.find())
+            throw new ClassNotFoundException();
+        do {
+            result.add(forName(matcher.group(1)));
+        }while (matcher.find());
         return result;
     }
 
@@ -91,6 +112,11 @@ public class ClassIntrospection extends ClassVisitor {
         name = name.replace(";", "");
         name = name.replace("/", ".");
         return Class.forName(name);
+    }
+
+    @Override
+    public void visitEnd() {
+        super.visitEnd();
     }
 
     public static Set<Class<?>> getUsedClasses(Class<?> clazz, Set<Class<?>> classesKnown) {
