@@ -1,9 +1,6 @@
 package org.notlebedev;
 
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,75 +35,32 @@ public class ClassIntrospection extends ClassVisitor {
     @Override
     public FieldVisitor visitField(int access, String name, String descriptor, String signature, Object value) {
         try {
-            usedClasses.add(forName(descriptor));
+            usedClasses.addAll(allClassNames(descriptor));
         } catch (ClassNotFoundException e) {
             exceptions.add(e);
         }
         if(signature != null)
             try {
-                usedClasses.addAll(forSignature(signature));
+                usedClasses.addAll(allClassNames(signature));
             } catch (ClassNotFoundException e) {
                 exceptions.add(e);
             }
         return super.visitField(access, name, descriptor, signature, value);
     }
 
-    private final static Pattern pattern1 = Pattern.compile("<(.*?)>");
-    private final static Pattern pattern2 = Pattern.compile("(.*?;)");
-    private static Set<Class<?>> forSignature(String signature) throws ClassNotFoundException {
-        var result = new HashSet<Class<?>>();
-        Matcher matcher = pattern1.matcher(signature);
-        if(!matcher.find())
-            throw new ClassNotFoundException();
-        matcher = pattern2.matcher(matcher.group(1));
-        if(!matcher.find())
-            throw new ClassNotFoundException();
-        do {
-            result.add(forName(matcher.group(1)));
-        }while (matcher.find());
-        return result;
+    @Override
+    public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
+        return new MethodIntrospection();
     }
 
-    private static Class<?> forName(String name) throws ClassNotFoundException {
-        name = name.replace(" ", "");
-
-        switch (name) {
-
-            case "boolean":
-            case "Z":
-                return boolean.class;
-            case "byte":
-            case "B":
-                return byte.class;
-            case "char":
-            case "C":
-                return char.class;
-            case "long":
-            case "J":
-                return long.class;
-            case "short":
-            case "S":
-                return short.class;
-            case "int":
-            case "I":
-                return int.class;
-            case "float":
-            case "F":
-                return float.class;
-            case "double":
-            case "D":
-                return double.class;
-            case "void":
-                return void.class;
-            default:
+    private final static Pattern pattern = Pattern.compile("L(.*?)[;<]");
+    private static Set<Class<?>> allClassNames(String str) throws ClassNotFoundException {
+        var result = new HashSet<Class<?>>();
+        Matcher matcher = pattern.matcher(str);
+        while (matcher.find()) {
+            result.add(Class.forName(matcher.group(1).replace("/", ".")));
         }
-
-        while (name.startsWith("["))
-            name = name.substring(1);
-        name = name.substring(1);
-        name = name.replace(";", "");
-        name = name.replace("/", ".");
-        return Class.forName(name);
+        return result;
     }
 
     @Override
@@ -118,11 +72,18 @@ public class ClassIntrospection extends ClassVisitor {
             try {
                 var introspection = new ClassIntrospection(aClass, classesKnown);
                 recursiveUsed.addAll(introspection.getUsedClasses());
+                exceptions.addAll(introspection.getExceptions());
             } catch (SyntheticClassException | IOException ignored) {
             }
         });
 
         classesKnown.addAll(recursiveUsed);
         super.visitEnd();
+    }
+
+
+
+    public List<Exception> getExceptions() {
+        return exceptions;
     }
 }
