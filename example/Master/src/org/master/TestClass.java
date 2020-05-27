@@ -1,6 +1,7 @@
 package org.master;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 
 public class TestClass implements Serializable, TestInterface {
@@ -9,6 +10,8 @@ public class TestClass implements Serializable, TestInterface {
     private final Integer iC;
     private final int i;
     private final List<Integer> arrayList;
+    private String[] ia;
+    private HashMap<Double, Integer> m;
 
     public TestClass(String str, Integer iC, int i, List<Integer> arrayList) {
         this.str = str;

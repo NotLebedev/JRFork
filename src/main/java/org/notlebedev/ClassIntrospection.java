@@ -67,13 +67,12 @@ public class ClassIntrospection extends ClassVisitor {
     public void visitEnd() {
         usedClasses.removeAll(classesKnown);
         classesKnown.addAll(usedClasses);
-        Set<Class<?>> recursiveUsed = new HashSet<>();
         usedClasses.forEach(aClass -> {
             try {
                 var introspection = new ClassIntrospection(aClass, classesKnown);
-                recursiveUsed.addAll(introspection.getUsedClasses());
                 exceptions.addAll(introspection.getExceptions());
-            } catch (SyntheticClassException | IOException ignored) {
+                classesKnown.addAll(introspection.getUsedClasses());
+            } catch (SyntheticClassException | IOException | ClassNotFoundException ignored) {
             }
         });
 
