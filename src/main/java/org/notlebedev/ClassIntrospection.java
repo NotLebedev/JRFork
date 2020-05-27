@@ -38,28 +38,61 @@ public class ClassIntrospection extends ClassVisitor {
 
     @Override
     public FieldVisitor visitField(int access, String name, String descriptor, String signature, Object value) {
-        try {
-            usedClasses.addAll(allClassNames(descriptor));
-        } catch (ClassNotFoundException e) {
-            exceptions.add(e);
-        }
-        if(signature != null)
-            try {
-                usedClasses.addAll(allClassNames(signature));
-            } catch (ClassNotFoundException e) {
-                exceptions.add(e);
-            }
+        ldc(descriptor, signature);
         return super.visitField(access, name, descriptor, signature, value);
     }
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
-        try {
-            usedClasses.addAll(allClassNames(descriptor));
-        } catch (ClassNotFoundException e) {
-            this.exceptions.add(e);
-        }
+        ldc(descriptor);
         return methodIntrospection;
+    }
+
+    @Override
+    public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+        ldc(signature, superName);
+        for (String anInterface : interfaces) {
+            ldc(anInterface);
+        }
+        super.visit(version, access, name, signature, superName, interfaces);
+    }
+
+    @Override
+    public void visitOuterClass(String owner, String name, String descriptor) {
+        ldc(owner, descriptor);
+        super.visitOuterClass(owner, name, descriptor);
+    }
+
+    @Override
+    public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
+        ldc(descriptor);
+        return super.visitAnnotation(descriptor, visible);
+    }
+
+    @Override
+    public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String descriptor, boolean visible) {
+        ldc(descriptor);
+        return super.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
+    }
+
+    @Override
+    public void visitInnerClass(String name, String outerName, String innerName, int access) {
+        ldc(name);
+        super.visitInnerClass(name, outerName, innerName, access);
+    }
+
+    /**
+     * Load classes specified in descriptor in {@code usedClasses} {@link Set}
+     * @param descriptors descriptors with classes in format Lclass/path/name
+     */
+    private void ldc(String... descriptors) {
+        for (String descriptor : descriptors) {
+            try {
+                usedClasses.addAll(ClassIntrospection.allClassNames(descriptor));
+            } catch (ClassNotFoundException e) {
+                exceptions.add(e);
+            }
+        }
     }
 
     private final static Pattern pattern = Pattern.compile("L(.*?)[;<]");
