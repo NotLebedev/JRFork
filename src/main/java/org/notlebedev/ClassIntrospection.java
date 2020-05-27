@@ -14,6 +14,7 @@ public class ClassIntrospection extends ClassVisitor {
     private final Set<Class<?>> classesKnown;
     private final List<ClassNotFoundException> exceptions;
     private final MethodIntrospection methodIntrospection;
+    private final FieldIntrospection fieldIntrospection;
 
     public ClassIntrospection(Class<?> clazz, Set<Class<?>> omitClasses) throws SyntheticClassException {
         super(Opcodes.ASM7);
@@ -24,6 +25,7 @@ public class ClassIntrospection extends ClassVisitor {
         if (clazz.isSynthetic())
             throw new SyntheticClassException();
         methodIntrospection = new MethodIntrospection();
+        fieldIntrospection = new FieldIntrospection();
     }
 
     public Set<Class<?>> getUsedClasses() throws IOException, ClassNotFoundException {
@@ -39,7 +41,7 @@ public class ClassIntrospection extends ClassVisitor {
     @Override
     public FieldVisitor visitField(int access, String name, String descriptor, String signature, Object value) {
         ldc(descriptor, signature);
-        return super.visitField(access, name, descriptor, signature, value);
+        return fieldIntrospection;
     }
 
     @Override
@@ -110,8 +112,10 @@ public class ClassIntrospection extends ClassVisitor {
     @Override
     public void visitEnd() {
         exceptions.addAll(methodIntrospection.getExceptions());
+        exceptions.addAll(fieldIntrospection.getExceptions());
 
         usedClasses.addAll(methodIntrospection.getUsedClasses());
+        usedClasses.addAll(fieldIntrospection.getUsedClasses());
         usedClasses.removeAll(classesKnown);
         classesKnown.addAll(usedClasses);
         usedClasses.forEach(aClass -> {
