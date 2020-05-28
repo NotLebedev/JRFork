@@ -2,6 +2,7 @@ package org.notlebedev.introspection;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -47,7 +48,7 @@ public class ObjectIntrospection {
      * taking place (e.g. if an Integer is stored in Object field Integer class will be determined) and do so
      * recursively
      */
-    public void inspectData() {
+    private void inspectData() {
         inspectDataRecursion(containedClass, classesUsed);
         classesUsed.removeAll(omitClasses);
     }
@@ -55,6 +56,9 @@ public class ObjectIntrospection {
     private void inspectDataRecursion(Object obj, Set<Class<?>> classesUsed) {
         if(obj == null)
             return;
+        if(obj instanceof Collection) {
+            inspectCollectionRecursive((Collection<?>) obj, classesUsed);
+        }
         Class<?> baseClass = obj.getClass();
         if(omitClasses.contains(baseClass) || JDKClassTester.isJDK(baseClass))
             return;
@@ -71,5 +75,9 @@ public class ObjectIntrospection {
             }
             baseClassField.setAccessible(false);
         }
+    }
+
+    private <T> void inspectCollectionRecursive(Collection<T> c, Set<Class<?>> classesUsed) {
+        c.forEach(o -> inspectDataRecursion(o, classesUsed));
     }
 }
