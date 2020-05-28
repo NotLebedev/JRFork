@@ -54,30 +54,39 @@ public class ObjectIntrospection {
     }
 
     private void inspectDataRecursion(Object obj, Set<Class<?>> classesUsed) {
-        if(obj == null)
+        if (obj == null)
             return;
-        if(obj instanceof Collection) {
+        if (obj instanceof Collection) {
             inspectCollectionRecursive((Collection<?>) obj, classesUsed);
-        }
-        Class<?> baseClass = obj.getClass();
-        if(omitClasses.contains(baseClass) || JDKClassTester.isJDK(baseClass))
-            return;
-        classesUsed.add(baseClass);
-        for (Field baseClassField : baseClass.getDeclaredFields()) {
-            baseClassField.setAccessible(true);
-            try {
-                inspectDataRecursion(baseClassField.get(obj), classesUsed);
-            } catch (IllegalAccessException e) {
-                throw new IllegalStateException(e);
-            } catch (StackOverflowError e) {
-                System.out.println(baseClass);
-                throw new StackOverflowError();
+        } if (obj.getClass().isArray()) {
+            inspectArrayRecursive((Object[]) obj, classesUsed);
+        }else {
+            Class<?> baseClass = obj.getClass();
+            if (omitClasses.contains(baseClass) || JDKClassTester.isJDK(baseClass))
+                return;
+            classesUsed.add(baseClass);
+            for (Field baseClassField : baseClass.getDeclaredFields()) {
+                baseClassField.setAccessible(true);
+                try {
+                    inspectDataRecursion(baseClassField.get(obj), classesUsed);
+                } catch (IllegalAccessException e) {
+                    throw new IllegalStateException(e);
+                } catch (StackOverflowError e) {
+                    System.out.println(baseClass);
+                    throw new StackOverflowError();
+                }
+                baseClassField.setAccessible(false);
             }
-            baseClassField.setAccessible(false);
         }
     }
 
     private <T> void inspectCollectionRecursive(Collection<T> c, Set<Class<?>> classesUsed) {
         c.forEach(o -> inspectDataRecursion(o, classesUsed));
+    }
+
+    private void inspectArrayRecursive(Object[] arr, Set<Class<?>> classesUsed) {
+        for (Object o : arr) {
+            inspectDataRecursion(o, classesUsed);
+        }
     }
 }
