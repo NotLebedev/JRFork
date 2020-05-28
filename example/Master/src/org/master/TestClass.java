@@ -1,5 +1,7 @@
 package org.master;
 
+import org.notlebedev.introspection.ObjectIntrospection;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -9,15 +11,16 @@ public class TestClass implements Serializable, TestInterface {
     private final String str;
     private final Integer iC;
     private final int i;
-    private final List<Integer> arrayList;
-    private String[] ia;
+    private final List<Object> arrayList;
+    private Object[] ia;
     private HashMap<Double, Integer> m;
 
-    public TestClass(String str, Integer iC, int i, List<Integer> arrayList) {
+    public TestClass(String str, Integer iC, int i, List<Object> arrayList, Object[] ia) {
         this.str = str;
         this.iC = iC;
         this.i = i;
         this.arrayList = arrayList;
+        this.ia = ia;
     }
 
     public String getStr() {
@@ -32,7 +35,7 @@ public class TestClass implements Serializable, TestInterface {
         return i;
     }
 
-    public List<Integer> getArrayList() {
+    public List<Object> getArrayList() {
         return arrayList;
     }
 
