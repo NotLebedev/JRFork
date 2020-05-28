@@ -52,7 +52,8 @@ public class SocketSlaveConnection implements SlaveConnection {
     }
 
     @Override
-    public void close() {
-
+    public void close() throws IOException {
+        in.close();
+        out.close();
     }
 }

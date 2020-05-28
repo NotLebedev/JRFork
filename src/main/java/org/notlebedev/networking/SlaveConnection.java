@@ -10,6 +10,6 @@ public interface SlaveConnection {
     AbstractMessage listenRequest() throws IOException;
     void sendResponse(AbstractMessage message) throws IOException;
     void setTimeout(int timeout) throws SocketException;
-    void close();
+    void close() throws IOException;
 
 }
