@@ -40,6 +40,7 @@ public class TestClass implements Serializable, TestInterface {
     @Override
     public void printData() {
         System.out.println(str + " " + iC.toString() + " " + i + " " + arrayList.toString());
+        new TestClass3();
     }
 
     @Override
