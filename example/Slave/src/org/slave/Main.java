@@ -22,31 +22,6 @@ public class Main {
 
         Instrumentation inst = InstrumentationHook.getInstrumentation();
         try {
-            /*ByteReceiver receiver = new ByteReceiver(4040);
-
-            ByteArrayInputStream bis = new ByteArrayInputStream(receiver.getData());
-            ObjectInput in = new ObjectInputStream(bis);
-            Object o = in.readObject();
-            bis.close();
-            in.close();
-            if (!(o instanceof FullObjectDump))
-                return;
-
-            FullObjectDump dump = (FullObjectDump) o;
-            cll.addClass(dump.getName(), dump.getBytecode());
-            bis = new ByteArrayInputStream(dump.getObjectData());
-            in = new CustomClassLoaderObjectInputStream(bis, cll);
-
-            o = in.readObject();
-
-            if (o instanceof TestInterface) {
-                ((TestInterface) o).printData();
-                System.out.println(((TestInterface) o).square(12));
-            } else {
-                System.out.println("Not ritght");
-            }
-
-            receiver.close();*/
             SlaveConnection connection = new SocketSlaveConnection(4040);
             AbstractMessage message = connection.listenRequest();
             if(message instanceof GetExecutionContextMessage) {

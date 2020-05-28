@@ -1,7 +1,5 @@
 package org.master;
 
-import org.notlebedev.introspection.ObjectIntrospection;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
