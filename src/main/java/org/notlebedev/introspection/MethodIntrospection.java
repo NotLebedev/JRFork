@@ -1,4 +1,4 @@
-package org.notlebedev;
+package org.notlebedev.introspection;
 
 import org.objectweb.asm.*;
 
