@@ -10,11 +10,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class FieldIntrospection extends FieldVisitor {
+class FieldIntrospection extends FieldVisitor {
     private final Set<Class<?>> usedClasses;
     private final List<ClassNotFoundException> exceptions;
 
-    public FieldIntrospection() {
+    FieldIntrospection() {
         super(Opcodes.ASM7);
         usedClasses = new HashSet<>();
         exceptions = new ArrayList<>();
@@ -46,11 +46,11 @@ public class FieldIntrospection extends FieldVisitor {
         }
     }
 
-    public Set<Class<?>> getUsedClasses() {
+    Set<Class<?>> getUsedClasses() {
         return usedClasses;
     }
 
-    public List<ClassNotFoundException> getExceptions() {
+    List<ClassNotFoundException> getExceptions() {
         return exceptions;
     }
 }

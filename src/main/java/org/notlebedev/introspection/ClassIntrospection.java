@@ -130,7 +130,7 @@ public class ClassIntrospection extends ClassVisitor {
         super.visitEnd();
     }
 
-    List<ClassNotFoundException> getExceptions() {
+    private List<ClassNotFoundException> getExceptions() {
         return exceptions;
     }
 }

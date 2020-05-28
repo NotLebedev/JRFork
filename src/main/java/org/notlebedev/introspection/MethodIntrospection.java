@@ -7,10 +7,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class MethodIntrospection extends MethodVisitor {
+class MethodIntrospection extends MethodVisitor {
     private final Set<Class<?>> usedClasses;
     private final List<ClassNotFoundException> exceptions;
-    public MethodIntrospection() {
+    MethodIntrospection() {
         super(Opcodes.ASM7);
         usedClasses = new HashSet<>();
         exceptions = new ArrayList<>();
@@ -108,11 +108,11 @@ public class MethodIntrospection extends MethodVisitor {
         }
     }
 
-    public Set<Class<?>> getUsedClasses() {
+    Set<Class<?>> getUsedClasses() {
         return usedClasses;
     }
 
-    public List<ClassNotFoundException> getExceptions() {
+    List<ClassNotFoundException> getExceptions() {
         return exceptions;
     }
 }
