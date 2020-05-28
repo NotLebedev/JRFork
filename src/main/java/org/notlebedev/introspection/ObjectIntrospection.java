@@ -1,5 +1,6 @@
 package org.notlebedev.introspection;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
@@ -8,17 +9,37 @@ public class ObjectIntrospection {
     private final Object containedClass;
     private final Set<Class<?>> classesUsed;
     private final Set<Class<?>> omitClasses;
+    private final ClassIntrospection classIntrospection;
 
-    public ObjectIntrospection(Object obj) {
+    public ObjectIntrospection(Object obj) throws SyntheticClassException {
         containedClass = obj;
         classesUsed = new HashSet<>();
         omitClasses = new HashSet<>();
+        classIntrospection = new ClassIntrospection(obj.getClass(), omitClasses);
     }
 
-    public ObjectIntrospection(Object obj, Set<Class<?>> omitClasses) {
+    /**
+     * @param obj object to introspect
+     * @param omitClasses classes that are to be excluded from dependencies of this object
+     */
+    public ObjectIntrospection(Object obj, Set<Class<?>> omitClasses) throws SyntheticClassException {
         containedClass = obj;
         classesUsed = new HashSet<>();
         this.omitClasses = new HashSet<>(omitClasses);
+        classIntrospection = new ClassIntrospection(obj.getClass(), omitClasses);
+    }
+
+    /**
+     * Get a full set of classes necessary for this class to function, excluding standard JDK library and classes
+     * passes as omitClasses parameter of constructor
+     * @return {@link Set} of {@link Class} objects
+     * @throws IOException inspection of bytecode failed due to file read failure
+     * @throws ClassNotFoundException inspection of bytecode failed due to incorrect class names in bytecode
+     */
+    public Set<Class<?>> getClassesUsed() throws IOException, ClassNotFoundException {
+        inspectData();
+        classesUsed.addAll(classIntrospection.getUsedClasses());
+        return classesUsed;
     }
 
     /**
