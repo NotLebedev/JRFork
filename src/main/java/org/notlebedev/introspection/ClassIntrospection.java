@@ -12,6 +12,7 @@ public class ClassIntrospection extends ClassVisitor {
     private final Class<?> clazz;
     private final Set<Class<?>> usedClasses;
     private final Set<Class<?>> classesKnown;
+    private final Set<Class<?>> omitClasses;
     private final List<ClassNotFoundException> exceptions;
     private final MethodIntrospection methodIntrospection;
     private final FieldIntrospection fieldIntrospection;
@@ -26,6 +27,7 @@ public class ClassIntrospection extends ClassVisitor {
             throw new SyntheticClassException();
         methodIntrospection = new MethodIntrospection();
         fieldIntrospection = new FieldIntrospection();
+        this.omitClasses = new HashSet<>(omitClasses);
     }
 
     public Set<Class<?>> getUsedClasses() throws IOException, ClassNotFoundException {
@@ -35,6 +37,7 @@ public class ClassIntrospection extends ClassVisitor {
         cr.accept(this, 0);
         if (!exceptions.isEmpty())
             throw exceptions.get(0);
+        classesKnown.removeAll(omitClasses);
         return classesKnown;
     }
 
@@ -104,7 +107,8 @@ public class ClassIntrospection extends ClassVisitor {
             return result;
         Matcher matcher = pattern.matcher(str);
         while (matcher.find()) {
-            result.add(Class.forName(matcher.group(1).replace("/", ".")));
+            if(!JDKClassTester.isJDK(Class.forName(matcher.group(1).replace("/", "."))))
+                result.add(Class.forName(matcher.group(1).replace("/", ".")));
         }
         return result;
     }
