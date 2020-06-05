@@ -48,7 +48,7 @@ public class ExecutionContext {
         return duplicate;
     }
 
-    public static Map<String, byte[]> toBytecodes(Set<Class> classes) throws IOException {
+    public static Map<String, byte[]> toBytecodes(Set<Class<?>> classes) throws IOException {
         var result = new HashMap<String, byte[]>(classes.size());
         for (Class clazz : classes) {
             if (clazz.isSynthetic())
