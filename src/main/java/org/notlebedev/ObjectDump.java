@@ -6,12 +6,12 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.URL;
 
-public class ObjectDump implements Serializable {
+public class ObjectDump {
 
     private final String name;
     private final byte[] objectData;
 
-    public ObjectDump(Serializable object) throws IOException {
+    public ObjectDump(Object object) throws IOException {
         this.name = object.getClass().getCanonicalName();
 
         var bos = new ByteArrayOutputStream();

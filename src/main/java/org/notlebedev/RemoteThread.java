@@ -1,17 +1,13 @@
 package org.notlebedev;
 
+import org.notlebedev.exceptions.OperationFailedException;
 import org.notlebedev.introspection.ObjectIntrospection;
 import org.notlebedev.introspection.SyntheticClassException;
 import org.notlebedev.networking.MasterConnection;
-import org.notlebedev.networking.messages.AbstractMessage;
-import org.notlebedev.networking.messages.GetExecutionContextMessage;
-import org.notlebedev.networking.messages.LoadClassesMessage;
-import org.notlebedev.networking.messages.SendExecutionContextMessage;
+import org.notlebedev.networking.messages.*;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class RemoteThread {
@@ -25,7 +21,7 @@ public class RemoteThread {
             throw new SyntheticClassException();
     }
 
-    public void start() throws IOException, ClassNotFoundException {
+    public void start() throws IOException, ClassNotFoundException, OperationFailedException {
         AbstractMessage response = connection.sendRequest(new GetExecutionContextMessage());
         if(!(response instanceof SendExecutionContextMessage))
             throw new IOException();
@@ -48,6 +44,15 @@ public class RemoteThread {
 
         response = connection.sendRequest(new LoadClassesMessage(ExecutionContext
                 .toBytecodes(objectIntrospection.getClassesUsed())));
+        if(!(response instanceof OperationSuccessfulMessage))
+            throw new OperationFailedException();
+
+        var objDump = new ObjectDump(payload);
+        Map<String, byte[]> obj = new HashMap<>();
+        obj.put(objDump.getName(), objDump.getObjectData());
+        response = connection.sendRequest(new SendObjectsMessage(obj));
+        if(!(response instanceof OperationSuccessfulMessage))
+            throw new OperationFailedException();
     }
 
     public Runnable getPayload() {
