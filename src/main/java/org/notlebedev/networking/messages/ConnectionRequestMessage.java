@@ -1,5 +1,8 @@
 package org.notlebedev.networking.messages;
 
+/**
+ * Message sent to establish connection from slave to master
+ */
 public class ConnectionRequestMessage implements AbstractMessage {
     private final int port;
 
