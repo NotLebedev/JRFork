@@ -59,7 +59,8 @@ public class JSONMessageHolder {
             Map<String, byte[]> converted = jsonMessageHolder.classBytecodes.entrySet().stream()
                     .collect(Collectors.toMap(Map.Entry::getKey, e -> decoder.decode(e.getValue())));
             return new LoadClassesMessage(converted);
-        });
+        }),
+        OperationSuccessful(jsonMessageHolder -> new OperationSuccessfulMessage());
 
         private final Function<JSONMessageHolder, AbstractMessage> toAbstractMessageFunction;
 
