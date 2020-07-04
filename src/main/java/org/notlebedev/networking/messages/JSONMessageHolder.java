@@ -6,11 +6,15 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Java object to JSON adapter used to send {@link AbstractMessage} over json
+ */
 public class JSONMessageHolder {
     private MessageType messageType;
     private int port;
     private String[] classNames;
     private Map<String, String> classBytecodes;
+    private Map<String, String> objects;
 
     public static final Base64.Encoder encoder = Base64.getEncoder();
     public static final Base64.Decoder decoder = Base64.getDecoder();
@@ -33,6 +37,11 @@ public class JSONMessageHolder {
 
     public void setClassBytecodes(Map<String, byte[]> classBytecodes) {
         this.classBytecodes = classBytecodes.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> encoder.encodeToString(e.getValue())));
+    }
+
+    public void setObjects(Map<String, byte[]> objects) {
+        this.objects = objects.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> encoder.encodeToString(e.getValue())));
     }
 
@@ -59,6 +68,12 @@ public class JSONMessageHolder {
             Map<String, byte[]> converted = jsonMessageHolder.classBytecodes.entrySet().stream()
                     .collect(Collectors.toMap(Map.Entry::getKey, e -> decoder.decode(e.getValue())));
             return new LoadClassesMessage(converted);
+        }),
+        OperationSuccessful(jsonMessageHolder -> new OperationSuccessfulMessage()),
+        SendObjects(jsonMessageHolder -> {
+            Map<String, byte[]> converted = jsonMessageHolder.classBytecodes.entrySet().stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey, e -> decoder.decode(e.getValue())));
+            return new SendObjectsMessage(converted);
         });
 
         private final Function<JSONMessageHolder, AbstractMessage> toAbstractMessageFunction;
