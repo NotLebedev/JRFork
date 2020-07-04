@@ -6,6 +6,9 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Java object to JSON adapter used to send {@link AbstractMessage} over json
+ */
 public class JSONMessageHolder {
     private MessageType messageType;
     private int port;
