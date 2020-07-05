@@ -82,7 +82,10 @@ public class JSONMessageHolder {
         }),
         ExecuteRunnable(jsonMessageHolder -> new ExecuteRunnableMessage()),
         ObjectIsNotRunnable(jsonMessageHolder -> new ObjectIsNotRunnableMessage()),
-        GetObjects(jsonMessageHolder -> new GetObjectsMessage(jsonMessageHolder.objectsToGet));
+        GetObjects(jsonMessageHolder -> new GetObjectsMessage(jsonMessageHolder.objectsToGet)),
+        ClassNotFound(jsonMessageHolder -> new ClassNotFoundMessage(
+                new HashSet<>(Arrays.asList(jsonMessageHolder.classNames))
+        ));
 
         private final Function<JSONMessageHolder, AbstractMessage> toAbstractMessageFunction;
 
