@@ -25,8 +25,14 @@ public class Main {
             RemoteThread rt = new RemoteThread(connection, add);
             rt.start();
 
+            rt.join();
+            if(!rt.isSuccessful()) {
+                System.out.println("Failed");
+                return;
+            }
+
             System.out.println(add.getSum());
-        } catch (IOException | SyntheticClassException | ClassNotFoundException | OperationFailedException e) {
+        } catch (IOException | SyntheticClassException | InterruptedException e) {
             e.printStackTrace();
         }
     }
