@@ -1,28 +1,14 @@
 package org.slave;
 
-import org.notlebedev.ByteArrayClassLoader;
-import org.notlebedev.CustomClassLoaderObjectInputStream;
-import org.notlebedev.ExecutionContext;
-import org.notlebedev.InstrumentationHook;
+import org.notlebedev.ExecutionHost;
 import org.notlebedev.networking.SlaveConnection;
 import org.notlebedev.networking.SocketSlaveConnection;
-import org.notlebedev.networking.messages.*;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.lang.instrument.Instrumentation;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Main {
 
-
     public static void main(String[] args) {
-        ByteArrayClassLoader cll = new ByteArrayClassLoader(new URL[0], ClassLoader.getSystemClassLoader());
-        Thread.currentThread().setContextClassLoader(cll);
-
-        Instrumentation inst = InstrumentationHook.getInstrumentation();
         SlaveConnection connection;
         try {
             connection = new SocketSlaveConnection(4040);
@@ -31,60 +17,8 @@ public class Main {
             return;
         }
 
-        while (true) {
-            AbstractMessage message;
-            try {
-                message = connection.listenRequest();
-            } catch (IOException e) {
-                break;
-            }
-            if (message instanceof GetExecutionContextMessage) {
-                List<String> context = new ArrayList<>((new ExecutionContext(inst)).getExtraLoadedClassNames());
-                var response = new SendExecutionContextMessage(context);
-                try {
-                    connection.sendResponse(response);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return;
-                }
-            } else if (message instanceof LoadClassesMessage) {
-                ((LoadClassesMessage) message).getClassBytecodes().forEach((str, bytes) -> System.out.println(str));
-                ((LoadClassesMessage) message).getClassBytecodes().forEach(cll::addClass);
-                try {
-                    connection.sendResponse(new OperationSuccessfulMessage());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return;
-                }
-            } else if (message instanceof SendObjectsMessage) {
-                SendObjectsMessage sendObjectsMessage = ((SendObjectsMessage) message);
-                ArrayList<Object> objects = new ArrayList<>();
-                sendObjectsMessage.getObjects().forEach((name, bytes) -> {
-                    var bis = new ByteArrayInputStream(bytes);
-                    CustomClassLoaderObjectInputStream objectInputStream;
-                    try {
-                        objectInputStream = new CustomClassLoaderObjectInputStream(bis, cll);
-                        objects.add(objectInputStream.readObject());
-                    } catch (IOException | ClassNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                });
-
-                objects.forEach(obj -> {
-                    if(obj instanceof Runnable)
-                        ((Runnable) obj).run();
-                    else
-                        System.out.println(obj);
-                });
-
-                try {
-                    connection.sendResponse(new OperationSuccessfulMessage());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return;
-                }
-            }
-        }
+        var host = new ExecutionHost(connection);
+        host.run();
     }
 
 }
