@@ -69,7 +69,14 @@ public class Main {
                         e.printStackTrace();
                     }
                 });
-                System.out.println(objects);
+
+                objects.forEach(obj -> {
+                    if(obj instanceof Runnable)
+                        ((Runnable) obj).run();
+                    else
+                        System.out.println(obj);
+                });
+
                 try {
                     connection.sendResponse(new OperationSuccessfulMessage());
                 } catch (IOException e) {
