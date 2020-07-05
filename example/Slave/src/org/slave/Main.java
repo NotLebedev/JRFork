@@ -1,12 +1,14 @@
 package org.slave;
 
 import org.notlebedev.ByteArrayClassLoader;
+import org.notlebedev.CustomClassLoaderObjectInputStream;
 import org.notlebedev.ExecutionContext;
 import org.notlebedev.InstrumentationHook;
 import org.notlebedev.networking.SlaveConnection;
 import org.notlebedev.networking.SocketSlaveConnection;
 import org.notlebedev.networking.messages.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
@@ -48,6 +50,26 @@ public class Main {
             } else if (message instanceof LoadClassesMessage) {
                 ((LoadClassesMessage) message).getClassBytecodes().forEach((str, bytes) -> System.out.println(str));
                 ((LoadClassesMessage) message).getClassBytecodes().forEach(cll::addClass);
+                try {
+                    connection.sendResponse(new OperationSuccessfulMessage());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return;
+                }
+            } else if (message instanceof SendObjectsMessage) {
+                SendObjectsMessage sendObjectsMessage = ((SendObjectsMessage) message);
+                ArrayList<Object> objects = new ArrayList<>();
+                sendObjectsMessage.getObjects().forEach((name, bytes) -> {
+                    var bis = new ByteArrayInputStream(bytes);
+                    CustomClassLoaderObjectInputStream objectInputStream;
+                    try {
+                        objectInputStream = new CustomClassLoaderObjectInputStream(bis, cll);
+                        objects.add(objectInputStream.readObject());
+                    } catch (IOException | ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                });
+                System.out.println(objects);
                 try {
                     connection.sendResponse(new OperationSuccessfulMessage());
                 } catch (IOException e) {

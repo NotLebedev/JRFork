@@ -1,6 +1,8 @@
 package org.master;
 
 import org.notlebedev.InstrumentationHook;
+import org.notlebedev.RemoteThread;
+import org.notlebedev.exceptions.OperationFailedException;
 import org.notlebedev.introspection.ObjectIntrospection;
 import org.notlebedev.introspection.SyntheticClassException;
 import org.notlebedev.networking.MasterConnection;
@@ -23,20 +25,11 @@ public class Main {
 
         try {
             MasterConnection connection = new SocketMasterConnection(InetAddress.getLocalHost(), 4040, 8081);
-            AbstractMessage response = connection.sendRequest(new GetExecutionContextMessage());
-            if(response instanceof SendExecutionContextMessage) {
-                SendExecutionContextMessage resp = (SendExecutionContextMessage) response;
-                Set<Class<?>> omitClasses = resp.getClassNames().stream().map(s -> {
-                    try {
-                        return Class.forName(s);
-                    } catch (ClassNotFoundException e) {
-                        return null;
-                    }
-                }).filter(Objects::nonNull).collect(Collectors.toCollection(HashSet::new));
-                var oI = new ObjectIntrospection(test, omitClasses);
-                System.out.println(oI.getClassesUsed());
-            }
-        } catch (IOException | SyntheticClassException | ClassNotFoundException e) {
+
+            Addition add = new Addition(new Integer[]{1, 2, 3, 4, 5, 6});
+            RemoteThread rt = new RemoteThread(connection, add);
+            rt.start();
+        } catch (IOException | SyntheticClassException | ClassNotFoundException | OperationFailedException e) {
             e.printStackTrace();
         }
     }
