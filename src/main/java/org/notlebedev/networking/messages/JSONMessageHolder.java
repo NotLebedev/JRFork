@@ -71,7 +71,7 @@ public class JSONMessageHolder {
         }),
         OperationSuccessful(jsonMessageHolder -> new OperationSuccessfulMessage()),
         SendObjects(jsonMessageHolder -> {
-            Map<String, byte[]> converted = jsonMessageHolder.classBytecodes.entrySet().stream()
+            Map<String, byte[]> converted = jsonMessageHolder.objects.entrySet().stream()
                     .collect(Collectors.toMap(Map.Entry::getKey, e -> decoder.decode(e.getValue())));
             return new SendObjectsMessage(converted);
         });
