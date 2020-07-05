@@ -8,6 +8,7 @@ import org.notlebedev.networking.messages.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -74,7 +75,14 @@ public class RemoteThread {
         if(!executionResult.getClass().equals(payload.getClass()))
             throw new OperationFailedException();
 
-        System.out.println(executionResult);
+        Arrays.stream(payload.getClass().getFields()).forEach(field -> {
+            try {
+                if(!Modifier.isFinal(field.getModifiers()))
+                    field.set(payload, field.get(executionResult));
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public Runnable getPayload() {

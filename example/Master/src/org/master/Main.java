@@ -24,6 +24,8 @@ public class Main {
             Addition add = new Addition(new Integer[]{1, 2, 3, 4, 5, 6});
             RemoteThread rt = new RemoteThread(connection, add);
             rt.start();
+
+            System.out.println(add.getSum());
         } catch (IOException | SyntheticClassException | ClassNotFoundException | OperationFailedException e) {
             e.printStackTrace();
         }
