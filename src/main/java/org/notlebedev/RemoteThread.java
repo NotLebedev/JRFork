@@ -24,7 +24,7 @@ public class RemoteThread {
     public void start() throws IOException, ClassNotFoundException, OperationFailedException {
         AbstractMessage response = connection.sendRequest(new GetExecutionContextMessage());
         if(!(response instanceof SendExecutionContextMessage))
-            throw new IOException();
+            throw new OperationFailedException();
         SendExecutionContextMessage resp = (SendExecutionContextMessage) response;
         Set<Class<?>> omitClasses = resp.getClassNames().stream().map(s -> {
             try {
