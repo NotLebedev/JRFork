@@ -6,7 +6,9 @@ import org.notlebedev.introspection.SyntheticClassException;
 import org.notlebedev.networking.MasterConnection;
 import org.notlebedev.networking.messages.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -57,6 +59,22 @@ public class RemoteThread {
         response = connection.sendRequest(new ExecuteRunnableMessage());
         if(!(response instanceof OperationSuccessfulMessage))
             throw new OperationFailedException();
+
+        response = connection.sendRequest(new GetObjectsMessage(1));
+        if(!(response instanceof SendObjectsMessage) || ((SendObjectsMessage) response).getObjects().size() != 1)
+            throw new OperationFailedException();
+
+        ByteArrayInputStream bis = new ByteArrayInputStream(((SendObjectsMessage) response)
+                .getObjects().values().toArray(byte[][]::new)[0]);
+        CustomClassLoaderObjectInputStream objectInputStream;
+        ByteArrayClassLoader threadClassLoader
+                = new ByteArrayClassLoader(new URL[0], ClassLoader.getSystemClassLoader());
+        objectInputStream = new CustomClassLoaderObjectInputStream(bis, threadClassLoader);
+        Object executionResult = objectInputStream.readObject();
+        if(!executionResult.getClass().equals(payload.getClass()))
+            throw new OperationFailedException();
+
+        System.out.println(executionResult);
     }
 
     public Runnable getPayload() {
