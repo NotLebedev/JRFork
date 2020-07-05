@@ -7,6 +7,10 @@ public class GetObjectsMessage implements AbstractMessage {
         this.objectsToGet = objectsToGet;
     }
 
+    public Integer getObjectsToGet() {
+        return objectsToGet;
+    }
+
     @Override
     public JSONMessageHolder toJSON() {
         var json = new JSONMessageHolder();
