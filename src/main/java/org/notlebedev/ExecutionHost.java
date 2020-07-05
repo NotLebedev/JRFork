@@ -73,6 +73,23 @@ public class ExecutionHost implements Runnable {
                     e.printStackTrace();
                     return;
                 }
+            } else if (message instanceof ExecuteRunnableMessage) {
+                if(!(objectStack.get(objectStack.size() - 1) instanceof Runnable)) {
+                    try {
+                        connection.sendResponse(new ObjectIsNotRunnableMessage());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return;
+                    }
+                }
+
+                ((Runnable) objectStack.get(objectStack.size() - 1)).run();
+                try {
+                    connection.sendResponse(new OperationSuccessfulMessage());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return;
+                }
             }
         }
     }
