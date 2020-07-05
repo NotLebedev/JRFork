@@ -1,8 +1,9 @@
 package org.master;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
-public class Addition implements Runnable {
+public class Addition implements Runnable, Serializable {
     public final Integer[] items;
     public Integer sum;
 
