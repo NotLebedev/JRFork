@@ -7,10 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class ExecutionHost implements Runnable {
     private final ArrayList<Object> objectStack;
@@ -87,6 +84,16 @@ public class ExecutionHost implements Runnable {
 
                 ((Runnable) objectStack.get(objectStack.size() - 1)).run();
                 connection.sendResponse(new OperationSuccessfulMessage());
+            } else if (message instanceof GetObjectsMessage) {
+                int objectsCount = ((GetObjectsMessage) message).getObjectsToGet();
+
+                Map<String, byte[]> objects = new HashMap<>();
+                for (int i = 0; i < objectsCount; i++) {
+                    var dump = new ObjectDump(objectStack.remove(objectStack.size() - 1));
+                    objects.put(dump.getName(), dump.getObjectData());
+                }
+
+                connection.sendResponse(new SendObjectsMessage(objects));
             }
         }
     }
