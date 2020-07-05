@@ -53,6 +53,10 @@ public class RemoteThread {
         response = connection.sendRequest(new SendObjectsMessage(obj));
         if(!(response instanceof OperationSuccessfulMessage))
             throw new OperationFailedException();
+
+        response = connection.sendRequest(new ExecuteRunnableMessage());
+        if(!(response instanceof OperationSuccessfulMessage))
+            throw new OperationFailedException();
     }
 
     public Runnable getPayload() {
