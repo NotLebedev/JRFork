@@ -75,7 +75,8 @@ public class JSONMessageHolder {
                     .collect(Collectors.toMap(Map.Entry::getKey, e -> decoder.decode(e.getValue())));
             return new SendObjectsMessage(converted);
         }),
-        ExecuteRunnable(jsonMessageHolder -> new ExecuteRunnableMessage());
+        ExecuteRunnable(jsonMessageHolder -> new ExecuteRunnableMessage()),
+        ObjectIsNotRunnable(jsonMessageHolder -> new ObjectIsNotRunnableMessage());
 
         private final Function<JSONMessageHolder, AbstractMessage> toAbstractMessageFunction;
 
