@@ -14,6 +14,7 @@ public class ExecutionHost implements Runnable {
     private final ArrayList<Object> objectStack;
     private final ByteArrayClassLoader threadClassLoader;
     private final SlaveConnection connection;
+    private Instrumentation instrumentation;
 
     public ExecutionHost(SlaveConnection connection) {
         this.connection = connection;
@@ -23,9 +24,17 @@ public class ExecutionHost implements Runnable {
 
     @Override
     public void run() {
-        Instrumentation instrumentation = InstrumentationHook.getInstrumentation();
+        instrumentation = InstrumentationHook.getInstrumentation();
         Thread.currentThread().setContextClassLoader(threadClassLoader);
 
+        try {
+            control();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void control() throws IOException, ClassNotFoundException {
         while (true) {
             AbstractMessage message;
             try {
@@ -36,60 +45,44 @@ public class ExecutionHost implements Runnable {
             if (message instanceof GetExecutionContextMessage) {
                 List<String> context = new ArrayList<>((new ExecutionContext(instrumentation)).getExtraLoadedClassNames());
                 var response = new SendExecutionContextMessage(context);
-                try {
-                    connection.sendResponse(response);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return;
-                }
+                connection.sendResponse(response);
             } else if (message instanceof LoadClassesMessage) {
                 ((LoadClassesMessage) message).getClassBytecodes().forEach((str, bytes) -> System.out.println(str));
                 ((LoadClassesMessage) message).getClassBytecodes().forEach(threadClassLoader::addClass);
-                try {
-                    connection.sendResponse(new OperationSuccessfulMessage());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return;
-                }
+                connection.sendResponse(new OperationSuccessfulMessage());
             } else if (message instanceof SendObjectsMessage) {
                 SendObjectsMessage sendObjectsMessage = ((SendObjectsMessage) message);
                 ArrayList<Object> objects = new ArrayList<>();
+
+                final IOException[] ioException = new IOException[1];
+                final ClassNotFoundException[] classNotFoundException = new ClassNotFoundException[1];
                 sendObjectsMessage.getObjects().forEach((name, bytes) -> {
                     var bis = new ByteArrayInputStream(bytes);
                     CustomClassLoaderObjectInputStream objectInputStream;
                     try {
                         objectInputStream = new CustomClassLoaderObjectInputStream(bis, threadClassLoader);
                         objects.add(objectInputStream.readObject());
-                    } catch (IOException | ClassNotFoundException e) {
-                        e.printStackTrace();
+                    } catch (IOException e) {
+                        ioException[0] = e;
+                    } catch (ClassNotFoundException e) {
+                        classNotFoundException[0] = e;
                     }
                 });
+                if(ioException[0] != null)
+                    throw ioException[0];
+                if(classNotFoundException[0] != null)
+                    throw classNotFoundException[0];
 
                 objectStack.addAll(objects);
 
-                try {
-                    connection.sendResponse(new OperationSuccessfulMessage());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return;
-                }
+                connection.sendResponse(new OperationSuccessfulMessage());
             } else if (message instanceof ExecuteRunnableMessage) {
                 if(!(objectStack.get(objectStack.size() - 1) instanceof Runnable)) {
-                    try {
-                        connection.sendResponse(new ObjectIsNotRunnableMessage());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        return;
-                    }
+                    connection.sendResponse(new ObjectIsNotRunnableMessage());
                 }
 
                 ((Runnable) objectStack.get(objectStack.size() - 1)).run();
-                try {
-                    connection.sendResponse(new OperationSuccessfulMessage());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return;
-                }
+                connection.sendResponse(new OperationSuccessfulMessage());
             }
         }
     }
