@@ -15,6 +15,7 @@ public class JSONMessageHolder {
     private String[] classNames;
     private Map<String, String> classBytecodes;
     private Map<String, String> objects;
+    private Integer objectsToGet;
 
     private static final Base64.Encoder encoder = Base64.getEncoder();
     private static final Base64.Decoder decoder = Base64.getDecoder();
@@ -43,6 +44,10 @@ public class JSONMessageHolder {
     void setObjects(Map<String, byte[]> objects) {
         this.objects = objects.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> encoder.encodeToString(e.getValue())));
+    }
+
+    public void setObjectsToGet(Integer objectsToGet) {
+        this.objectsToGet = objectsToGet;
     }
 
     private static class LazyGsonHolder {
@@ -76,7 +81,8 @@ public class JSONMessageHolder {
             return new SendObjectsMessage(converted);
         }),
         ExecuteRunnable(jsonMessageHolder -> new ExecuteRunnableMessage()),
-        ObjectIsNotRunnable(jsonMessageHolder -> new ObjectIsNotRunnableMessage());
+        ObjectIsNotRunnable(jsonMessageHolder -> new ObjectIsNotRunnableMessage()),
+        GetObjects(jsonMessageHolder -> new GetObjectsMessage(jsonMessageHolder.objectsToGet));
 
         private final Function<JSONMessageHolder, AbstractMessage> toAbstractMessageFunction;
 
