@@ -8,7 +8,9 @@ import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ExecutionHost implements Runnable {
     private final ArrayList<Object> objectStack;
@@ -55,7 +57,7 @@ public class ExecutionHost implements Runnable {
                 ArrayList<Object> objects = new ArrayList<>();
 
                 final IOException[] ioException = new IOException[1];
-                final ClassNotFoundException[] classNotFoundException = new ClassNotFoundException[1];
+                Set<ClassNotFoundException> classNotFoundExceptions = new HashSet<>();
                 sendObjectsMessage.getObjects().forEach((name, bytes) -> {
                     var bis = new ByteArrayInputStream(bytes);
                     CustomClassLoaderObjectInputStream objectInputStream;
@@ -65,13 +67,14 @@ public class ExecutionHost implements Runnable {
                     } catch (IOException e) {
                         ioException[0] = e;
                     } catch (ClassNotFoundException e) {
-                        classNotFoundException[0] = e;
+                        classNotFoundExceptions.add(e);
                     }
                 });
                 if(ioException[0] != null)
                     throw ioException[0];
-                if(classNotFoundException[0] != null)
-                    throw classNotFoundException[0];
+                if(!classNotFoundExceptions.isEmpty()) {
+                    //connection.sendResponse();
+                }
 
                 objectStack.addAll(objects);
 
