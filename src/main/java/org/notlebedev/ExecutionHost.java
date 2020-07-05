@@ -31,12 +31,12 @@ public class ExecutionHost implements Runnable {
 
         try {
             control();
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void control() throws IOException, ClassNotFoundException {
+    private void control() throws IOException {
         while (true) {
             AbstractMessage message;
             try {
@@ -57,7 +57,7 @@ public class ExecutionHost implements Runnable {
                 ArrayList<Object> objects = new ArrayList<>();
 
                 final IOException[] ioException = new IOException[1];
-                Set<ClassNotFoundException> classNotFoundExceptions = new HashSet<>();
+                Set<String> classNotFoundExceptions = new HashSet<>();
                 sendObjectsMessage.getObjects().forEach((name, bytes) -> {
                     var bis = new ByteArrayInputStream(bytes);
                     CustomClassLoaderObjectInputStream objectInputStream;
@@ -67,13 +67,14 @@ public class ExecutionHost implements Runnable {
                     } catch (IOException e) {
                         ioException[0] = e;
                     } catch (ClassNotFoundException e) {
-                        classNotFoundExceptions.add(e);
+                        classNotFoundExceptions.add(name);
                     }
                 });
                 if(ioException[0] != null)
                     throw ioException[0];
                 if(!classNotFoundExceptions.isEmpty()) {
-                    //connection.sendResponse();
+                    connection.sendResponse(new ClassNotFoundMessage(classNotFoundExceptions));
+                    continue;
                 }
 
                 objectStack.addAll(objects);
