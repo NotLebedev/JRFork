@@ -3,19 +3,14 @@ package org.master;
 import org.notlebedev.InstrumentationHook;
 import org.notlebedev.RemoteThread;
 import org.notlebedev.exceptions.OperationFailedException;
-import org.notlebedev.introspection.ObjectIntrospection;
 import org.notlebedev.introspection.SyntheticClassException;
 import org.notlebedev.networking.MasterConnection;
 import org.notlebedev.networking.SocketMasterConnection;
-import org.notlebedev.networking.messages.AbstractMessage;
-import org.notlebedev.networking.messages.GetExecutionContextMessage;
-import org.notlebedev.networking.messages.SendExecutionContextMessage;
 
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.net.InetAddress;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Main {
 

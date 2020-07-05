@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class RemoteThread {
     private final MasterConnection connection;
-    private Runnable payload;
+    private final Runnable payload;
 
     public RemoteThread(MasterConnection masterConnection, Runnable payload) throws SyntheticClassException {
         this.connection = masterConnection;

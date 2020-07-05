@@ -7,7 +7,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 @Deprecated
-public class ByteReceiver extends Thread {
+class ByteReceiver extends Thread {
     private final ServerSocket socket;
     private final Socket connection;
     private final DataInputStream in;

@@ -1,17 +1,17 @@
 package org.master;
 
-public class MutableInteger {
+class MutableInteger {
     private int data;
 
-    public void set(Integer data) {
+    void set(Integer data) {
         this.data = data;
     }
 
-    public Integer get() {
+    Integer get() {
         return data;
     }
 
-    public void add(Integer i) {
+    void add(Integer i) {
         data += i;
     }
 }

@@ -16,8 +16,8 @@ public class JSONMessageHolder {
     private Map<String, String> classBytecodes;
     private Map<String, String> objects;
 
-    public static final Base64.Encoder encoder = Base64.getEncoder();
-    public static final Base64.Decoder decoder = Base64.getDecoder();
+    private static final Base64.Encoder encoder = Base64.getEncoder();
+    private static final Base64.Decoder decoder = Base64.getDecoder();
 
     void setMessageType(MessageType messageType) {
         this.messageType = messageType;
@@ -31,22 +31,22 @@ public class JSONMessageHolder {
         return messageType.toAbstractMessageFunction.apply(this);
     }
 
-    public void setClassNames(String[] classNames) {
+    void setClassNames(String[] classNames) {
         this.classNames = classNames;
     }
 
-    public void setClassBytecodes(Map<String, byte[]> classBytecodes) {
+    void setClassBytecodes(Map<String, byte[]> classBytecodes) {
         this.classBytecodes = classBytecodes.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> encoder.encodeToString(e.getValue())));
     }
 
-    public void setObjects(Map<String, byte[]> objects) {
+    void setObjects(Map<String, byte[]> objects) {
         this.objects = objects.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> encoder.encodeToString(e.getValue())));
     }
 
     private static class LazyGsonHolder {
-        public static final Gson gson = new Gson();
+        private static final Gson gson = new Gson();
     }
 
     public static JSONMessageHolder parseJSONMessage(String message) {
