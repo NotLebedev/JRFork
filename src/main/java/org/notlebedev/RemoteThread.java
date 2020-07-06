@@ -119,11 +119,11 @@ public class RemoteThread {
             });
         }
 
-        public boolean isSuccessful() {
+        private boolean isSuccessful() {
             return e == null;
         }
 
-        public Exception getException() {
+        private Exception getException() {
             return e;
         }
     }

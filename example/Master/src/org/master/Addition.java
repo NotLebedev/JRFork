@@ -3,9 +3,9 @@ package org.master;
 import java.io.Serializable;
 import java.util.Arrays;
 
-public class Addition implements Runnable, Serializable {
-    public final Integer[] items;
-    public Integer sum;
+class Addition implements Runnable, Serializable {
+    private final Integer[] items;
+    private Integer sum;
 
     public Addition(Integer[] items) {
         this.items = items;
