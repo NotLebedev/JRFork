@@ -8,12 +8,23 @@ import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.util.*;
 
+/**
+ * Example slave that can be used as a basis for a remote execution server.
+ * This execution host implements a stack machine on which {@link Runnable}
+ * objects can be loaded executed (via calling {@link Runnable#run} method)
+ * and than retrieved back. This is used in example.Slave project to work in
+ * pair with example.Master project and demonstrate work of a
+ * {@link RemoteThread}
+ */
 public class ExecutionHost implements Runnable {
     private final ArrayList<Object> objectStack;
     private final ByteArrayClassLoader threadClassLoader;
     private final SlaveConnection connection;
     private Instrumentation instrumentation;
 
+    /**
+     * @param connection fresh new connection to Master
+     */
     public ExecutionHost(SlaveConnection connection) {
         this.connection = connection;
         objectStack = new ArrayList<>();
@@ -55,6 +66,12 @@ public class ExecutionHost implements Runnable {
                 final IOException[] ioException = new IOException[1];
                 Set<String> classNotFoundExceptions = new HashSet<>();
                 sendObjectsMessage.getObjects().forEach((name, bytes) -> {
+                    //This iterator will try to load all objects provided,
+                    //however this might fail due to internal IOException,
+                    //which can not be recovered and thus thread must be stopped
+                    //or because some classes were not present, then it`s
+                    //possible, that master will retry this operation after
+                    //providing all required classes
                     var bis = new ByteArrayInputStream(bytes);
                     CustomClassLoaderObjectInputStream objectInputStream;
                     try {
@@ -67,6 +84,7 @@ public class ExecutionHost implements Runnable {
                     }
                 });
                 if(ioException[0] != null)
+                    //This error is not recoverable and process will terminate
                     throw ioException[0];
                 if(!classNotFoundExceptions.isEmpty()) {
                     connection.sendResponse(new ClassNotFoundMessage(classNotFoundExceptions));
@@ -77,6 +95,8 @@ public class ExecutionHost implements Runnable {
 
                 connection.sendResponse(new OperationSuccessfulMessage());
             } else if (message instanceof ExecuteRunnableMessage) {
+                //Note that execution is possible only for Runnable objects
+                //but object of any type can be loaded on stack, this
                 if(!(objectStack.get(objectStack.size() - 1) instanceof Runnable)) {
                     connection.sendResponse(new ObjectIsNotRunnableMessage());
                 }
