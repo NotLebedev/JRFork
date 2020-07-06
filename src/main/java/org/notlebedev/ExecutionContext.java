@@ -6,6 +6,13 @@ import java.lang.instrument.Instrumentation;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * This class can be used to sync loaded classes of two java-machines. It
+ * acquires handles of all loaded classes via {@link Instrumentation}, which
+ * can be loaded using {@link InstrumentationHook} (therefore
+ * InstrumentationProvider jar java agent should be loaded with -javaagent
+ * option)
+ */
 @SuppressWarnings("rawtypes")
 public class ExecutionContext {
     private final Set<Class> loadedClasses;
@@ -48,6 +55,14 @@ public class ExecutionContext {
         return duplicate;
     }
 
+    /**
+     * Get bytecode and names of given classes to later load it with
+     * {@link ByteArrayClassLoader} (or use otherwise)
+     * @param classes {@link Set} of classes to be loaded
+     * @return {@link Map} where key is fully qualified name of class in dot
+     * format (e.g. java.lang.Integer) and value is bytecode
+     * @throws IOException method failed to open some of the .class files
+     */
     public static Map<String, byte[]> toBytecodes(Set<Class<?>> classes) throws IOException {
         var result = new HashMap<String, byte[]>(classes.size());
         for (Class clazz : classes) {
