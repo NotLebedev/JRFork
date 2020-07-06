@@ -9,7 +9,6 @@ import org.notlebedev.networking.messages.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
-import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -103,7 +102,7 @@ public class RemoteThread {
                     .getObjects().values().toArray(byte[][]::new)[0]);
             CustomClassLoaderObjectInputStream objectInputStream;
             ByteArrayClassLoader threadClassLoader
-                    = new ByteArrayClassLoader(new URL[0], ClassLoader.getSystemClassLoader());
+                    = new ByteArrayClassLoader(ClassLoader.getSystemClassLoader());
             objectInputStream = new CustomClassLoaderObjectInputStream(bis, threadClassLoader);
             Object executionResult = objectInputStream.readObject();
             if (!executionResult.getClass().equals(payload.getClass()))

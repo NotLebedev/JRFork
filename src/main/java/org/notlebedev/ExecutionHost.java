@@ -6,7 +6,6 @@ import org.notlebedev.networking.messages.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
-import java.net.URL;
 import java.util.*;
 
 public class ExecutionHost implements Runnable {
@@ -18,7 +17,7 @@ public class ExecutionHost implements Runnable {
     public ExecutionHost(SlaveConnection connection) {
         this.connection = connection;
         objectStack = new ArrayList<>();
-        threadClassLoader = new ByteArrayClassLoader(new URL[0], ClassLoader.getSystemClassLoader());
+        threadClassLoader = new ByteArrayClassLoader(ClassLoader.getSystemClassLoader());
     }
 
     @Override
