@@ -59,7 +59,8 @@ public class ObjectIntrospection {
         if (obj instanceof Collection) {
             inspectCollectionRecursive((Collection<?>) obj, classesUsed);
         } if (obj.getClass().isArray()) {
-            inspectArrayRecursive((Object[]) obj, classesUsed);
+            if(!obj.getClass().getComponentType().isPrimitive())
+                inspectArrayRecursive((Object[]) obj, classesUsed, staticFieldsVisited);
         }else {
             Class<?> baseClass = obj.getClass();
             if (omitClasses.contains(baseClass) || JDKClassTester.isJDK(baseClass))
