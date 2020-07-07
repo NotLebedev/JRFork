@@ -14,10 +14,10 @@ import java.util.stream.Collectors;
 
 public class RemoteThread {
     private final MasterConnection connection;
-    private final Runnable payload;
+    private final Remote payload;
     private final Operation operation;
 
-    public RemoteThread(MasterConnection masterConnection, Runnable payload) throws SyntheticClassException {
+    public RemoteThread(MasterConnection masterConnection, Remote payload) throws SyntheticClassException {
         this.connection = masterConnection;
         this.payload = payload;
         if(payload.getClass().isSynthetic())

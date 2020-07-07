@@ -5,19 +5,21 @@ import org.notlebedev.networking.messages.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.instrument.Instrumentation;
 import java.util.*;
 
 /**
  * Example slave that can be used as a basis for a remote execution server.
- * This execution host implements a stack machine on which {@link Runnable}
- * objects can be loaded executed (via calling {@link Runnable#run} method)
+ * This execution host implements a stack machine on which {@link Serializable}
+ * and {@link Remote} objects can be loaded executed (via calling
+ * {@link Runnable#run} method)
  * and than retrieved back. This is used in example.Slave project to work in
  * pair with example.Master project and demonstrate work of a
  * {@link RemoteThread}
  */
 public class ExecutionHost implements Runnable {
-    private final ArrayList<Object> objectStack;
+    private final ArrayList<Serializable> objectStack;
     private final ByteArrayClassLoader threadClassLoader;
     private final SlaveConnection connection;
     private Instrumentation instrumentation;
@@ -91,7 +93,12 @@ public class ExecutionHost implements Runnable {
                     continue;
                 }
 
-                objectStack.addAll(objects);
+                objects.forEach(obj -> {
+                    if(!(obj instanceof Runnable))
+                        throw new IllegalStateException("De serialized objects is" +
+                                "expected to implement Serializable");
+                    objectStack.add((Serializable) obj);
+                });
 
                 connection.sendResponse(new OperationSuccessfulMessage());
             } else if (message instanceof ExecuteRunnableMessage) {

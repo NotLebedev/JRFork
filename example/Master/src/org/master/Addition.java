@@ -1,9 +1,10 @@
 package org.master;
 
-import java.io.Serializable;
+import org.notlebedev.Remote;
+
 import java.util.Arrays;
 
-class Addition implements Runnable, Serializable {
+class Addition implements Remote {
     private final Integer[] items;
     private Integer sum;
 
