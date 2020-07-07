@@ -77,6 +77,9 @@ public class ObjectIntrospection {
                 } catch (InaccessibleObjectException ignored) {
                     continue;
                 }
+                if(baseClassField.getType().isPrimitive())
+                    continue;
+
                 if(Modifier.isStatic(baseClassField.getModifiers()))
                     if(staticFieldsVisited.contains(baseClassField))
                         continue;
