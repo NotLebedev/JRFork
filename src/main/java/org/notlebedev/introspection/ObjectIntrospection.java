@@ -2,6 +2,8 @@ package org.notlebedev.introspection;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InaccessibleObjectException;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -9,6 +11,7 @@ import java.util.Set;
 public class ObjectIntrospection {
     private final Object containedClass;
     private final Set<Class<?>> classesUsed;
+    private final Set<Field> staticFieldsVisited;
     private final Set<Class<?>> omitClasses;
     private final ClassIntrospection classIntrospection;
 
@@ -16,6 +19,7 @@ public class ObjectIntrospection {
         containedClass = obj;
         classesUsed = new HashSet<>();
         omitClasses = new HashSet<>();
+        staticFieldsVisited = new HashSet<>();
         classIntrospection = new ClassIntrospection(obj.getClass(), omitClasses);
     }
 
@@ -27,6 +31,7 @@ public class ObjectIntrospection {
         containedClass = obj;
         classesUsed = new HashSet<>();
         this.omitClasses = new HashSet<>(omitClasses);
+        staticFieldsVisited = new HashSet<>();
         classIntrospection = new ClassIntrospection(obj.getClass(), omitClasses);
     }
 
@@ -49,27 +54,37 @@ public class ObjectIntrospection {
      * recursively
      */
     private void inspectData() {
-        inspectDataRecursion(containedClass, classesUsed);
+        inspectDataRecursion(containedClass, classesUsed, staticFieldsVisited);
         classesUsed.removeAll(omitClasses);
     }
 
-    private void inspectDataRecursion(Object obj, Set<Class<?>> classesUsed) {
+    private void inspectDataRecursion(Object obj, Set<Class<?>> classesUsed, Set<Field> staticFieldsVisited) {
         if (obj == null)
             return;
         if (obj instanceof Collection) {
-            inspectCollectionRecursive((Collection<?>) obj, classesUsed);
+            inspectCollectionRecursive((Collection<?>) obj, classesUsed, staticFieldsVisited);
         } if (obj.getClass().isArray()) {
             if(!obj.getClass().getComponentType().isPrimitive())
                 inspectArrayRecursive((Object[]) obj, classesUsed, staticFieldsVisited);
         }else {
             Class<?> baseClass = obj.getClass();
-            if (omitClasses.contains(baseClass) || JDKClassTester.isJDK(baseClass))
+            if (omitClasses.contains(baseClass)/* || JDKClassTester.isJDK(baseClass)*/)
                 return;
             classesUsed.add(baseClass);
             for (Field baseClassField : baseClass.getDeclaredFields()) {
-                baseClassField.setAccessible(true);
                 try {
-                    inspectDataRecursion(baseClassField.get(obj), classesUsed);
+                    baseClassField.setAccessible(true);
+                } catch (InaccessibleObjectException ignored) {
+                    continue;
+                }
+                if(Modifier.isStatic(baseClassField.getModifiers()))
+                    if(staticFieldsVisited.contains(baseClassField))
+                        continue;
+                    else
+                        staticFieldsVisited.add(baseClassField);
+
+                try {
+                    inspectDataRecursion(baseClassField.get(obj), classesUsed, staticFieldsVisited);
                 } catch (IllegalAccessException e) {
                     throw new IllegalStateException(e);
                 } catch (StackOverflowError e) {
@@ -81,13 +96,13 @@ public class ObjectIntrospection {
         }
     }
 
-    private <T> void inspectCollectionRecursive(Collection<T> c, Set<Class<?>> classesUsed) {
-        c.forEach(o -> inspectDataRecursion(o, classesUsed));
+    private <T> void inspectCollectionRecursive(Collection<T> c, Set<Class<?>> classesUsed, Set<Field> staticFieldsVisited) {
+        c.forEach(o -> inspectDataRecursion(o, classesUsed, staticFieldsVisited));
     }
 
-    private void inspectArrayRecursive(Object[] arr, Set<Class<?>> classesUsed) {
+    private void inspectArrayRecursive(Object[] arr, Set<Class<?>> classesUsed, Set<Field> staticFieldsVisited) {
         for (Object o : arr) {
-            inspectDataRecursion(o, classesUsed);
+            inspectDataRecursion(o, classesUsed, staticFieldsVisited);
         }
     }
 }
