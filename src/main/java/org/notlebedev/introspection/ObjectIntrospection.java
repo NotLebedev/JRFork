@@ -82,13 +82,19 @@ public class ObjectIntrospection {
             classesUsed.add(baseClass);
             for (Field baseClassField : baseClass.getDeclaredFields()) {
                 try {
+                    //Some fields can be restricted for access if they are not exported from module
+                    //nothing really can be done
+                    //TODO: log such failures, so user can inspect
                     baseClassField.setAccessible(true);
                 } catch (InaccessibleObjectException ignored) {
                     continue;
                 }
+                //Stop recursive descent if type is primitive
                 if(baseClassField.getType().isPrimitive())
                     continue;
 
+                //Static fields need to be treated separately, since they
+                //are common for all instances of a class
                 if(Modifier.isStatic(baseClassField.getModifiers()))
                     if(staticFieldsVisited.contains(baseClassField))
                         continue;
