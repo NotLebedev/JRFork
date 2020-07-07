@@ -57,11 +57,11 @@ public class ObjectIntrospection {
      * recursively
      */
     private void inspectData() {
-        inspectDataRecursion(containedClass, classesUsed, staticFieldsVisited);
+        inspectDataRecursion(containedClass);
         classesUsed.removeAll(omitClasses);
     }
 
-    private void inspectDataRecursion(Object obj, Set<Class<?>> classesUsed, Set<Field> staticFieldsVisited) {
+    private void inspectDataRecursion(Object obj) {
         //To avoid falling in infinite recursion during inspection of cyclic
         //dependencies objects inspected are to be tracked
         if(objectsInspected.contains(obj))
@@ -74,7 +74,7 @@ public class ObjectIntrospection {
             inspectCollectionRecursive((Collection<?>) obj, classesUsed, staticFieldsVisited);
         } else */if (obj.getClass().isArray()) {
             if(!obj.getClass().getComponentType().isPrimitive())
-                inspectArrayRecursive((Object[]) obj, classesUsed, staticFieldsVisited);
+                inspectArrayRecursive((Object[]) obj);
         } else {
             Class<?> baseClass = obj.getClass();
             if (omitClasses.contains(baseClass)/* || JDKClassTester.isJDK(baseClass)*/)
@@ -102,7 +102,7 @@ public class ObjectIntrospection {
                         staticFieldsVisited.add(baseClassField);
 
                 try {
-                    inspectDataRecursion(baseClassField.get(obj), classesUsed, staticFieldsVisited);
+                    inspectDataRecursion(baseClassField.get(obj));
                 } catch (IllegalAccessException e) {
                     throw new IllegalStateException(e);
                 }/* catch (StackOverflowError e) {
@@ -115,12 +115,12 @@ public class ObjectIntrospection {
     }
 
     private <T> void inspectCollectionRecursive(Collection<T> c, Set<Class<?>> classesUsed, Set<Field> staticFieldsVisited) {
-        c.forEach(o -> inspectDataRecursion(o, classesUsed, staticFieldsVisited));
+        c.forEach(this::inspectDataRecursion);
     }
 
-    private void inspectArrayRecursive(Object[] arr, Set<Class<?>> classesUsed, Set<Field> staticFieldsVisited) {
+    private void inspectArrayRecursive(Object[] arr) {
         for (Object o : arr) {
-            inspectDataRecursion(o, classesUsed, staticFieldsVisited);
+            inspectDataRecursion(o);
         }
     }
 }
