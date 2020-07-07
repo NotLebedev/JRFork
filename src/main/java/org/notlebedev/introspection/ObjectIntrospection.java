@@ -13,6 +13,7 @@ public class ObjectIntrospection {
     private final Set<Class<?>> classesUsed;
     private final Set<Field> staticFieldsVisited;
     private final Set<Class<?>> omitClasses;
+    private final Set<Object> objectsInspected;
     private final ClassIntrospection classIntrospection;
 
     public ObjectIntrospection(Object obj) throws SyntheticClassException {
@@ -21,6 +22,7 @@ public class ObjectIntrospection {
         omitClasses = new HashSet<>();
         staticFieldsVisited = new HashSet<>();
         classIntrospection = new ClassIntrospection(obj.getClass(), omitClasses);
+        objectsInspected = new HashSet<>();
     }
 
     /**
@@ -33,6 +35,7 @@ public class ObjectIntrospection {
         this.omitClasses = new HashSet<>(omitClasses);
         staticFieldsVisited = new HashSet<>();
         classIntrospection = new ClassIntrospection(obj.getClass(), omitClasses);
+        objectsInspected = new HashSet<>();
     }
 
     /**
@@ -59,6 +62,12 @@ public class ObjectIntrospection {
     }
 
     private void inspectDataRecursion(Object obj, Set<Class<?>> classesUsed, Set<Field> staticFieldsVisited) {
+        //To avoid falling in infinite recursion during inspection of cyclic
+        //dependencies objects inspected are to be tracked
+        if(objectsInspected.contains(obj))
+            return;
+        objectsInspected.add(obj);
+
         if (obj == null)
             return;
         if (obj instanceof Collection) {
