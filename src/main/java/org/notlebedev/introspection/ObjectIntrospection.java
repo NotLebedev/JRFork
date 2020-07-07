@@ -70,12 +70,12 @@ public class ObjectIntrospection {
 
         if (obj == null)
             return;
-        if (obj instanceof Collection) {
+        /*if (obj instanceof Collection) {
             inspectCollectionRecursive((Collection<?>) obj, classesUsed, staticFieldsVisited);
-        } if (obj.getClass().isArray()) {
+        } else */if (obj.getClass().isArray()) {
             if(!obj.getClass().getComponentType().isPrimitive())
                 inspectArrayRecursive((Object[]) obj, classesUsed, staticFieldsVisited);
-        }else {
+        } else {
             Class<?> baseClass = obj.getClass();
             if (omitClasses.contains(baseClass)/* || JDKClassTester.isJDK(baseClass)*/)
                 return;
@@ -105,10 +105,10 @@ public class ObjectIntrospection {
                     inspectDataRecursion(baseClassField.get(obj), classesUsed, staticFieldsVisited);
                 } catch (IllegalAccessException e) {
                     throw new IllegalStateException(e);
-                } catch (StackOverflowError e) {
+                }/* catch (StackOverflowError e) {
                     System.out.println(baseClass);
                     throw new StackOverflowError();
-                }
+                }*/
                 baseClassField.setAccessible(false);
             }
         }
