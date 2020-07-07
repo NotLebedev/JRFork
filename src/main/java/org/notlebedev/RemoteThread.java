@@ -108,10 +108,13 @@ public class RemoteThread {
             if (!executionResult.getClass().equals(payload.getClass()))
                 throw new OperationFailedException();
 
-            Arrays.stream(payload.getClass().getFields()).forEach(field -> {
+            Arrays.stream(payload.getClass().getDeclaredFields()).forEach(field -> {
                 try {
+                    boolean wasAccessible = Modifier.isPrivate(field.getModifiers());
+                    field.setAccessible(true);
                     if (!Modifier.isFinal(field.getModifiers()))
                         field.set(payload, field.get(executionResult));
+                    field.setAccessible(wasAccessible);
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
