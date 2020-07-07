@@ -23,7 +23,7 @@ public class Main {
 
             rt.join();
             if(!rt.isSuccessful()) {
-                System.out.println("Failed");
+                rt.getException().printStackTrace();
                 return;
             }
 
