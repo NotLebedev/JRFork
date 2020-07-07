@@ -12,6 +12,15 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Class providing functionality of remote code execution with similar
+ * interface to execution {@link Runnable} objects via {@link Thread} classes.
+ * Object type of {@link Remote} (payload) will be uploaded to remote server and
+ * executed there async. After execution payload will be retrieved and original
+ * payload will be replaced. Note that this replacement will be shallow copying
+ * objects fields, so references to the object will remain correct, however
+ * references to values stored in it will become obsolete
+ */
 public class RemoteThread {
     private final MasterConnection connection;
     private final Remote payload;
@@ -25,22 +34,50 @@ public class RemoteThread {
         operation = new Operation();
     }
 
+    /**
+     * Causes this thread to start execution on local machine, send object and
+     * all related classes to slave server, execute {@link Remote#run} method
+     * there and return the object back
+     */
     public void start() {
         operation.start();
     }
 
+    /**
+     * Wait for remote execution to finish and payload to be updated
+     * @throws InterruptedException if there is any interruption in current
+     * Thread
+     */
     public void join() throws InterruptedException {
         operation.join();
     }
 
+    /**
+     * Check if execution of the payload went successfully, if it did not
+     * {@link Exception} that resulted in failure can be found via
+     * {@link #getException} method
+     * @return true if no exceptions occurred during operation, false if
+     * connection was closed, slave failed to perform some operation
+     * or classes necessary for deserialization were not found
+     */
     public boolean isSuccessful() {
         return operation.isSuccessful();
     }
 
+    /**
+     * Retrieve exception stopped execution
+     * @return {@link OperationFailedException}, {@link IOException},
+     * {@link ClassNotFoundException} if exception occurred or null if not
+     */
     public Exception getException() {
         return operation.getException();
     }
 
+    /**
+     * Get payload provided to the constructor of class
+     * @return the same object as provided in constructor (see class description
+     * for more details on effect of remote execution on payload)
+     */
     public Runnable getPayload() {
         return payload;
     }
