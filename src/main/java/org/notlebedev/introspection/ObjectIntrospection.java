@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.Modifier;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
@@ -28,7 +27,7 @@ public class ObjectIntrospection {
         ERROR(Level.SEVERE),
         ERROR_EXCEPTION(Level.SEVERE);
 
-        Level logLevel;
+        final Level logLevel;
         InaccessibleModulePolicy(Level logLevel) {
             this.logLevel = logLevel;
         }
