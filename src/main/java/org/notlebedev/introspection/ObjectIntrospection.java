@@ -77,8 +77,8 @@ public class ObjectIntrospection {
                 inspectArrayRecursive((Object[]) obj);
         } else {
             Class<?> baseClass = obj.getClass();
-            if (omitClasses.contains(baseClass)/* || JDKClassTester.isJDK(baseClass)*/)
-                return;
+            /*if (omitClasses.contains(baseClass) || JDKClassTester.isJDK(baseClass))
+                return;*/
             classesUsed.add(baseClass);
             for (Field baseClassField : baseClass.getDeclaredFields()) {
                 try {
