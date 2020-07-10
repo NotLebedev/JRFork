@@ -101,64 +101,61 @@ public class ObjectIntrospection {
     }
 
     private void inspectDataRecursion(Object obj) throws InaccessiblePackageException {
+        if (obj == null)
+            return;
+
         //To avoid falling in infinite recursion during inspection of cyclic
         //dependencies objects inspected are to be tracked
         if (objectsInspected.contains(obj))
             return;
         objectsInspected.add(obj);
 
-        if (obj == null)
-            return;
-        /*if (obj instanceof Collection) {
-            inspectCollectionRecursive((Collection<?>) obj, classesUsed, staticFieldsVisited);
-        } else */
         if (obj.getClass().isArray()) {
             if (!obj.getClass().getComponentType().isPrimitive())
                 inspectArrayRecursive((Object[]) obj);
         } else {
             Class<?> baseClass = obj.getClass();
-            /*if (omitClasses.contains(baseClass) || JDKClassTester.isJDK(baseClass))
-                return;*/
             classesUsed.add(baseClass);
             for (Field baseClassField : baseClass.getDeclaredFields()) {
-                try {
-                    //Some fields can be restricted for access if they are not exported from module
-                    //nothing really can be done
-                    //TODO: log such failures, so user can inspect
-                    baseClassField.setAccessible(true);
-                } catch (InaccessibleObjectException e) {
-                    logger.log(inaccessibleModulePolicy.logLevel,
-                            "Unable to access package" + baseClass.getModule().getName() + "/" +
-                                    baseClass.getPackageName());
-                    if (inaccessibleModulePolicy != InaccessibleModulePolicy.ERROR_EXCEPTION)
-                        continue;
-                    else
-                        throw new InaccessiblePackageException(e,
-                                baseClass.getModule().getName(), baseClass.getPackageName());
-                }
-                //Stop recursive descent if type is primitive
-                if (baseClassField.getType().isPrimitive())
-                    continue;
-
-                //Static fields need to be treated separately, since they
-                //are common for all instances of a class
-                if (Modifier.isStatic(baseClassField.getModifiers()))
-                    if (staticFieldsVisited.contains(baseClassField))
-                        continue;
-                    else
-                        staticFieldsVisited.add(baseClassField);
-
-                try {
-                    inspectDataRecursion(baseClassField.get(obj));
-                } catch (IllegalAccessException e) {
-                    throw new IllegalStateException(e);
-                }/* catch (StackOverflowError e) {
-                    System.out.println(baseClass);
-                    throw new StackOverflowError();
-                }*/
-                baseClassField.setAccessible(false);
+                inspectFieldRecursive(obj, baseClass, baseClassField);
             }
         }
+    }
+
+    private void inspectFieldRecursive(Object obj, Class<?> baseClass, Field baseClassField)
+            throws InaccessiblePackageException {
+        try {
+            //Some fields can be restricted for access if they are not exported from module
+            //nothing really can be done
+            baseClassField.setAccessible(true);
+        } catch (InaccessibleObjectException e) {
+            logger.log(inaccessibleModulePolicy.logLevel,
+                    "Unable to access package" + baseClass.getModule().getName() + "/" +
+                            baseClass.getPackageName());
+            if (inaccessibleModulePolicy != InaccessibleModulePolicy.ERROR_EXCEPTION)
+                return;
+            else
+                throw new InaccessiblePackageException(e,
+                        baseClass.getModule().getName(), baseClass.getPackageName());
+        }
+        //Stop recursive descent if type is primitive
+        if (baseClassField.getType().isPrimitive())
+            return;
+
+        //Static fields need to be treated separately, since they
+        //are common for all instances of a class
+        if (Modifier.isStatic(baseClassField.getModifiers()))
+            if (staticFieldsVisited.contains(baseClassField))
+                return;
+            else
+                staticFieldsVisited.add(baseClassField);
+
+        try {
+            inspectDataRecursion(baseClassField.get(obj));
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException(e);
+        }
+        baseClassField.setAccessible(false);
     }
 
     private void inspectArrayRecursive(Object[] arr) throws InaccessiblePackageException {
