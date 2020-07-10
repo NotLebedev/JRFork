@@ -1,6 +1,7 @@
 package org.master;
 
 import org.notlebedev.RemoteThread;
+import org.notlebedev.introspection.ObjectIntrospection;
 import org.notlebedev.introspection.exceptions.SyntheticClassException;
 import org.notlebedev.networking.MasterConnection;
 import org.notlebedev.networking.SocketMasterConnection;
@@ -18,6 +19,7 @@ public class Main {
 
             RemoteThread rt = new RemoteThread(connection, add);
             rt.start();
+            rt.setInaccessibleModulePolicy(ObjectIntrospection.InaccessibleModulePolicy.SUPPRESS);
 
             System.out.println("Thread is running remotely");
 
