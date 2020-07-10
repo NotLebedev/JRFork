@@ -1,5 +1,7 @@
 package org.notlebedev.introspection;
 
+import org.notlebedev.InaccessiblePackageException;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InaccessibleObjectException;
@@ -7,6 +9,8 @@ import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ObjectIntrospection {
     private final Object containedClass;
@@ -15,6 +19,25 @@ public class ObjectIntrospection {
     private final Set<Class<?>> omitClasses;
     private final Set<Object> objectsInspected;
     private final ClassIntrospection classIntrospection;
+
+    public enum InaccessibleModulePolicy {
+        SUPPRESS(Level.OFF),
+        INFO(Level.INFO),
+        WARN(Level.WARNING),
+        ERROR(Level.SEVERE),
+        ERROR_EXCEPTION(Level.SEVERE);
+
+        Level logLevel;
+        InaccessibleModulePolicy(Level logLevel) {
+            this.logLevel = logLevel;
+        }
+    }
+
+    private InaccessibleModulePolicy inaccessibleModulePolicy
+            = InaccessibleModulePolicy.WARN;
+
+    public static final Logger logger = Logger.getLogger(
+            ObjectIntrospection.class.getName());
 
     public ObjectIntrospection(Object obj) throws SyntheticClassException {
         containedClass = obj;
@@ -45,10 +68,23 @@ public class ObjectIntrospection {
      * @throws IOException inspection of bytecode failed due to file read failure
      * @throws ClassNotFoundException inspection of bytecode failed due to incorrect class names in bytecode
      */
-    public Set<Class<?>> getClassesUsed() throws IOException, ClassNotFoundException {
+    public Set<Class<?>> getClassesUsed() throws IOException, ClassNotFoundException, InaccessiblePackageException {
         inspectData();
         classesUsed.addAll(classIntrospection.getUsedClasses());
         return classesUsed;
+    }
+
+    /**
+     * Set behavior in case module can not be accessed for introspection.
+     * This can be set to info level, or totally suppressed in case
+     * inaccessibility of modules is expected and is used as a stop for
+     * introspection, or to error and error + exception if such behavior is
+     * not desired
+     * @param inaccessibleModulePolicy check {@link InaccessibleModulePolicy}
+     * for description of options
+     */
+    public void setInaccessibleModulePolicy(InaccessibleModulePolicy inaccessibleModulePolicy) {
+        this.inaccessibleModulePolicy = inaccessibleModulePolicy;
     }
 
     /**
@@ -56,12 +92,12 @@ public class ObjectIntrospection {
      * taking place (e.g. if an Integer is stored in Object field Integer class will be determined) and do so
      * recursively
      */
-    private void inspectData() {
+    private void inspectData() throws InaccessiblePackageException {
         inspectDataRecursion(containedClass);
         classesUsed.removeAll(omitClasses);
     }
 
-    private void inspectDataRecursion(Object obj) {
+    private void inspectDataRecursion(Object obj) throws InaccessiblePackageException {
         //To avoid falling in infinite recursion during inspection of cyclic
         //dependencies objects inspected are to be tracked
         if(objectsInspected.contains(obj))
@@ -86,8 +122,15 @@ public class ObjectIntrospection {
                     //nothing really can be done
                     //TODO: log such failures, so user can inspect
                     baseClassField.setAccessible(true);
-                } catch (InaccessibleObjectException ignored) {
-                    continue;
+                } catch (InaccessibleObjectException e) {
+                    logger.log(inaccessibleModulePolicy.logLevel,
+                            "Unable to access package" + baseClass.getModule().getName() + "/" +
+                                    baseClass.getPackageName());
+                    if (inaccessibleModulePolicy != InaccessibleModulePolicy.ERROR_EXCEPTION)
+                        continue;
+                    else
+                        throw new InaccessiblePackageException(e,
+                                baseClass.getModule().getName(), baseClass.getPackageName());
                 }
                 //Stop recursive descent if type is primitive
                 if(baseClassField.getType().isPrimitive())
@@ -114,11 +157,7 @@ public class ObjectIntrospection {
         }
     }
 
-    private <T> void inspectCollectionRecursive(Collection<T> c, Set<Class<?>> classesUsed, Set<Field> staticFieldsVisited) {
-        c.forEach(this::inspectDataRecursion);
-    }
-
-    private void inspectArrayRecursive(Object[] arr) {
+    private void inspectArrayRecursive(Object[] arr) throws InaccessiblePackageException {
         for (Object o : arr) {
             inspectDataRecursion(o);
         }

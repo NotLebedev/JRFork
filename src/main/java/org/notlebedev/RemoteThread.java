@@ -53,12 +53,12 @@ public class RemoteThread {
         public void run() {
             try {
                 exec();
-            } catch (OperationFailedException | IOException | ClassNotFoundException e) {
+            } catch (OperationFailedException | IOException | ClassNotFoundException | InaccessiblePackageException e) {
                 this.e = e;
             }
         }
 
-        private void exec() throws IOException, ClassNotFoundException, OperationFailedException {
+        private void exec() throws IOException, ClassNotFoundException, OperationFailedException, InaccessiblePackageException {
             AbstractMessage response = connection.sendRequest(new GetExecutionContextMessage());
             if (!(response instanceof SendExecutionContextMessage))
                 throw new OperationFailedException();
