@@ -1,4 +1,4 @@
---illegal-access=warn
+--illegal-access=deny
 
 --add-opens java.base/java.io=ALL-UNNAMED
 --add-opens java.base/java.lang=ALL-UNNAMED
@@ -51,3 +51,9 @@
 --add-opens java.base/javax.security.auth.spi=ALL-UNNAMED
 --add-opens java.base/javax.security.auth.x500=ALL-UNNAMED
 --add-opens java.base/javax.security.cert=ALL-UNNAMED
+--add-opens java.base/jdk.internal.module=ALL-UNNAMED
+--add-opens java.base/jdk.internal.loader=ALL-UNNAMED
+--add-opens java.base/jdk.internal.reflect=ALL-UNNAMED
+--add-opens java.base/jdk.internal.misc=ALL-UNNAMED
+--add-opens java.base/sun.net.www.protocol.jar=ALL-UNNAMED
+--add-opens java.base/sun.invoke.util=ALL-UNNAMED
