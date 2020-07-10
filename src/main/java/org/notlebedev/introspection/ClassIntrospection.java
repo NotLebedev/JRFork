@@ -1,5 +1,6 @@
 package org.notlebedev.introspection;
 
+import org.notlebedev.introspection.exceptions.SyntheticClassException;
 import org.objectweb.asm.*;
 
 import java.io.IOException;

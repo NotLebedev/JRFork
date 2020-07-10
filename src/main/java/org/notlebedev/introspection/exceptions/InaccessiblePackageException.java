@@ -1,4 +1,4 @@
-package org.notlebedev;
+package org.notlebedev.introspection.exceptions;
 
 import java.lang.reflect.InaccessibleObjectException;
 

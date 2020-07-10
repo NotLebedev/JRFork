@@ -1,6 +1,7 @@
 package org.notlebedev.introspection;
 
-import org.notlebedev.InaccessiblePackageException;
+import org.notlebedev.introspection.exceptions.InaccessiblePackageException;
+import org.notlebedev.introspection.exceptions.SyntheticClassException;
 
 import java.io.IOException;
 import java.lang.reflect.Field;

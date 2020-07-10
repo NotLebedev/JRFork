@@ -1,7 +1,7 @@
 package org.master;
 
 import org.notlebedev.RemoteThread;
-import org.notlebedev.introspection.SyntheticClassException;
+import org.notlebedev.introspection.exceptions.SyntheticClassException;
 import org.notlebedev.networking.MasterConnection;
 import org.notlebedev.networking.SocketMasterConnection;
 

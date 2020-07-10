@@ -1,8 +1,9 @@
 package org.notlebedev;
 
 import org.notlebedev.exceptions.OperationFailedException;
+import org.notlebedev.introspection.exceptions.InaccessiblePackageException;
 import org.notlebedev.introspection.ObjectIntrospection;
-import org.notlebedev.introspection.SyntheticClassException;
+import org.notlebedev.introspection.exceptions.SyntheticClassException;
 import org.notlebedev.networking.MasterConnection;
 import org.notlebedev.networking.messages.*;
 
