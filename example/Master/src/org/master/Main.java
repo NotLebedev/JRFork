@@ -10,7 +10,7 @@ import java.net.InetAddress;
 
 public class Main {
 
-    public static void main (String []args) {
+    public static void main(String[] args) {
         try {
             MasterConnection connection = new SocketMasterConnection(InetAddress.getLocalHost(), 4040, 8081);
 
@@ -22,7 +22,7 @@ public class Main {
             System.out.println("Thread is running remotely");
 
             rt.join();
-            if(!rt.isSuccessful()) {
+            if (!rt.isSuccessful()) {
                 rt.getException().printStackTrace();
                 return;
             }

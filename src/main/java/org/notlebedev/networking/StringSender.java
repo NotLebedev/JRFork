@@ -12,7 +12,7 @@ class StringSender {
 
     public StringSender(InetAddress remoteAddress, int port) throws IOException {
         socket = new Socket(remoteAddress, port);
-        out  = new DataOutputStream(socket.getOutputStream());
+        out = new DataOutputStream(socket.getOutputStream());
     }
 
     public void sendData(String message) throws IOException {

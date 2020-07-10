@@ -28,6 +28,7 @@ public class ObjectIntrospection {
         ERROR_EXCEPTION(Level.SEVERE);
 
         final Level logLevel;
+
         InaccessibleModulePolicy(Level logLevel) {
             this.logLevel = logLevel;
         }
@@ -49,7 +50,7 @@ public class ObjectIntrospection {
     }
 
     /**
-     * @param obj object to introspect
+     * @param obj         object to introspect
      * @param omitClasses classes that are to be excluded from dependencies of this object
      */
     public ObjectIntrospection(Object obj, Set<Class<?>> omitClasses) throws SyntheticClassException {
@@ -64,8 +65,9 @@ public class ObjectIntrospection {
     /**
      * Get a full set of classes necessary for this class to function, excluding standard JDK library and classes
      * passes as omitClasses parameter of constructor
+     *
      * @return {@link Set} of {@link Class} objects
-     * @throws IOException inspection of bytecode failed due to file read failure
+     * @throws IOException            inspection of bytecode failed due to file read failure
      * @throws ClassNotFoundException inspection of bytecode failed due to incorrect class names in bytecode
      */
     public Set<Class<?>> getClassesUsed() throws IOException, ClassNotFoundException, InaccessiblePackageException {
@@ -80,8 +82,9 @@ public class ObjectIntrospection {
      * inaccessibility of modules is expected and is used as a stop for
      * introspection, or to error and error + exception if such behavior is
      * not desired
+     *
      * @param inaccessibleModulePolicy check {@link InaccessibleModulePolicy}
-     * for description of options
+     *                                 for description of options
      */
     public void setInaccessibleModulePolicy(InaccessibleModulePolicy inaccessibleModulePolicy) {
         this.inaccessibleModulePolicy = inaccessibleModulePolicy;
@@ -100,7 +103,7 @@ public class ObjectIntrospection {
     private void inspectDataRecursion(Object obj) throws InaccessiblePackageException {
         //To avoid falling in infinite recursion during inspection of cyclic
         //dependencies objects inspected are to be tracked
-        if(objectsInspected.contains(obj))
+        if (objectsInspected.contains(obj))
             return;
         objectsInspected.add(obj);
 
@@ -108,8 +111,9 @@ public class ObjectIntrospection {
             return;
         /*if (obj instanceof Collection) {
             inspectCollectionRecursive((Collection<?>) obj, classesUsed, staticFieldsVisited);
-        } else */if (obj.getClass().isArray()) {
-            if(!obj.getClass().getComponentType().isPrimitive())
+        } else */
+        if (obj.getClass().isArray()) {
+            if (!obj.getClass().getComponentType().isPrimitive())
                 inspectArrayRecursive((Object[]) obj);
         } else {
             Class<?> baseClass = obj.getClass();
@@ -133,13 +137,13 @@ public class ObjectIntrospection {
                                 baseClass.getModule().getName(), baseClass.getPackageName());
                 }
                 //Stop recursive descent if type is primitive
-                if(baseClassField.getType().isPrimitive())
+                if (baseClassField.getType().isPrimitive())
                     continue;
 
                 //Static fields need to be treated separately, since they
                 //are common for all instances of a class
-                if(Modifier.isStatic(baseClassField.getModifiers()))
-                    if(staticFieldsVisited.contains(baseClassField))
+                if (Modifier.isStatic(baseClassField.getModifiers()))
+                    if (staticFieldsVisited.contains(baseClassField))
                         continue;
                     else
                         staticFieldsVisited.add(baseClassField);

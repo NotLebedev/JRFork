@@ -89,6 +89,7 @@ public class ClassIntrospection extends ClassVisitor {
 
     /**
      * Load classes specified in descriptor in {@code usedClasses} {@link Set}
+     *
      * @param descriptors descriptors with classes in format Lclass/path/name
      */
     private void ldc(String... descriptors) {
@@ -102,13 +103,14 @@ public class ClassIntrospection extends ClassVisitor {
     }
 
     private final static Pattern pattern = Pattern.compile("L(.*?)[;<]");
+
     static Set<Class<?>> allClassNames(String str) throws ClassNotFoundException {
         var result = new HashSet<Class<?>>();
-        if(str == null)
+        if (str == null)
             return result;
         Matcher matcher = pattern.matcher(str);
         while (matcher.find()) {
-            if(!JDKClassTester.isJDK(Class.forName(matcher.group(1).replace("/", "."))))
+            if (!JDKClassTester.isJDK(Class.forName(matcher.group(1).replace("/", "."))))
                 result.add(Class.forName(matcher.group(1).replace("/", ".")));
         }
         return result;

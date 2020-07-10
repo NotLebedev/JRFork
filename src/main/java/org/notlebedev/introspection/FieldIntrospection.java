@@ -34,6 +34,7 @@ class FieldIntrospection extends FieldVisitor {
 
     /**
      * Load classes specified in descriptor in {@code usedClasses} {@link Set}
+     *
      * @param descriptors descriptors with classes in format Lclass/path/name
      */
     private void ldc(String... descriptors) {

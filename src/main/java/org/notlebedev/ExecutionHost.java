@@ -85,16 +85,16 @@ public class ExecutionHost implements Runnable {
                         classNotFoundExceptions.add(name);
                     }
                 });
-                if(ioException[0] != null)
+                if (ioException[0] != null)
                     //This error is not recoverable and process will terminate
                     throw ioException[0];
-                if(!classNotFoundExceptions.isEmpty()) {
+                if (!classNotFoundExceptions.isEmpty()) {
                     connection.sendResponse(new ClassNotFoundMessage(classNotFoundExceptions));
                     continue;
                 }
 
                 objects.forEach(obj -> {
-                    if(!(obj instanceof Runnable))
+                    if (!(obj instanceof Runnable))
                         throw new IllegalStateException("De serialized objects is" +
                                 "expected to implement Serializable");
                     objectStack.add((Serializable) obj);
@@ -104,7 +104,7 @@ public class ExecutionHost implements Runnable {
             } else if (message instanceof ExecuteRunnableMessage) {
                 //Note that execution is possible only for Runnable objects
                 //but object of any type can be loaded on stack, this
-                if(!(objectStack.get(objectStack.size() - 1) instanceof Runnable)) {
+                if (!(objectStack.get(objectStack.size() - 1) instanceof Runnable)) {
                     connection.sendResponse(new ObjectIsNotRunnableMessage());
                 }
 

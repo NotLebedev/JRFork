@@ -30,7 +30,7 @@ public class RemoteThread {
     public RemoteThread(MasterConnection masterConnection, Remote payload) throws SyntheticClassException {
         this.connection = masterConnection;
         this.payload = payload;
-        if(payload.getClass().isSynthetic())
+        if (payload.getClass().isSynthetic())
             throw new SyntheticClassException();
         operation = new Operation();
     }
@@ -46,8 +46,9 @@ public class RemoteThread {
 
     /**
      * Wait for remote execution to finish and payload to be updated
+     *
      * @throws InterruptedException if there is any interruption in current
-     * Thread
+     *                              Thread
      */
     public void join() throws InterruptedException {
         operation.join();
@@ -57,6 +58,7 @@ public class RemoteThread {
      * Check if execution of the payload went successfully, if it did not
      * {@link Exception} that resulted in failure can be found via
      * {@link #getException} method
+     *
      * @return true if no exceptions occurred during operation, false if
      * connection was closed, slave failed to perform some operation
      * or classes necessary for deserialization were not found
@@ -67,6 +69,7 @@ public class RemoteThread {
 
     /**
      * Retrieve exception stopped execution
+     *
      * @return {@link OperationFailedException}, {@link IOException},
      * {@link ClassNotFoundException} if exception occurred or null if not
      */
@@ -76,6 +79,7 @@ public class RemoteThread {
 
     /**
      * Get payload provided to the constructor of class
+     *
      * @return the same object as provided in constructor (see class description
      * for more details on effect of remote execution on payload)
      */

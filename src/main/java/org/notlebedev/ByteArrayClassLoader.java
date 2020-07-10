@@ -16,6 +16,7 @@ public class ByteArrayClassLoader extends URLClassLoader {
 
     /**
      * Inherit new byte array class loader from an existing one
+     *
      * @param parent parental class loader, e.g. system class loader
      */
     public ByteArrayClassLoader(ClassLoader parent) {
@@ -25,10 +26,11 @@ public class ByteArrayClassLoader extends URLClassLoader {
 
     /**
      * Load a class
-     * @param name class full qualified name in dot format, e.g. java.lang.Integer
+     *
+     * @param name     class full qualified name in dot format, e.g. java.lang.Integer
      * @param bytecode bytecode of class to be loaded
      */
-    public void addClass (String name, byte[] bytecode) {
+    public void addClass(String name, byte[] bytecode) {
         extraClasses.put(name, bytecode);
     }
 

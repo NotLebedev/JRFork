@@ -32,6 +32,7 @@ public class SocketMasterConnection implements MasterConnection {
 
     /**
      * Set timeout for all ingoing and outgoing networking operations, by default timeout is infinite
+     *
      * @param timeout non-negative timeout or zero for infinite timeout
      * @throws SocketException connection was in incorrect state and thus could not be modified
      */

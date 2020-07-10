@@ -10,6 +10,7 @@ import java.util.Set;
 class MethodIntrospection extends MethodVisitor {
     private final Set<Class<?>> usedClasses;
     private final List<ClassNotFoundException> exceptions;
+
     MethodIntrospection() {
         super(Opcodes.ASM7);
         usedClasses = new HashSet<>();
@@ -96,6 +97,7 @@ class MethodIntrospection extends MethodVisitor {
 
     /**
      * Load classes specified in descriptor in {@code usedClasses} {@link Set}
+     *
      * @param descriptors descriptors with classes in format Lclass/path/name
      */
     private void ldc(String... descriptors) {

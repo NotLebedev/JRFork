@@ -9,7 +9,7 @@ import java.net.SocketException;
 class StringReceiver {
     private final ServerSocket socket;
     private final Socket connection;
-    private final DataInputStream  in;
+    private final DataInputStream in;
 
     public StringReceiver(int port) throws IOException {
         socket = new ServerSocket(port);
