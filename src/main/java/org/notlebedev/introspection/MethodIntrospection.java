@@ -18,11 +18,7 @@ class MethodIntrospection extends MethodVisitor {
 
     @Override
     public void visitTypeInsn(int opcode, String type) {
-        try {
-            usedClasses.add(Class.forName(type.replace("/", ".")));
-        } catch (ClassNotFoundException e) {
-            exceptions.add(e);
-        }
+        ldc(type);
         super.visitTypeInsn(opcode, type);
     }
 
