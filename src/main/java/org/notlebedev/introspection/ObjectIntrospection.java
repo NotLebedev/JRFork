@@ -20,12 +20,38 @@ public class ObjectIntrospection {
     private final Set<Object> objectsInspected;
     private final ClassIntrospection classIntrospection;
 
+    /**
+     * Possible actions to take, when fields can not be introspected by
+     * reflection due to closed package access
+     *
+     * @see ObjectIntrospection#setInaccessibleModulePolicy
+     */
     public enum InaccessibleModulePolicy {
-        SUPPRESS(Level.OFF),
+        /**
+         * Don`t display any information in logs
+         */
+        SUPPRESS(Level.FINEST),
+        /**
+         * Display with {@link Level#INFO}
+         */
         INFO(Level.INFO),
+        /**
+         * Display with {@link Level#WARNING}
+         */
         WARN(Level.WARNING),
+        /**
+         * Display with {@link Level#SEVERE}
+         */
         ERROR(Level.SEVERE),
-        ERROR_EXCEPTION(Level.SEVERE);
+        /**
+         * Display with {@link Level#SEVERE} and throw
+         * {@link InaccessiblePackageException}
+         */
+        ERROR_EXCEPTION(Level.SEVERE),
+        /**
+         * Only throw {@link InaccessiblePackageException}
+         */
+        EXCEPTION_ONLY(Level.FINEST);
 
         final Level logLevel;
 
@@ -129,10 +155,13 @@ public class ObjectIntrospection {
             //nothing really can be done
             baseClassField.setAccessible(true);
         } catch (InaccessibleObjectException e) {
-            logger.log(inaccessibleModulePolicy.logLevel,
-                    "Unable to access package" + baseClass.getModule().getName() + "/" +
-                            baseClass.getPackageName());
-            if (inaccessibleModulePolicy != InaccessibleModulePolicy.ERROR_EXCEPTION)
+            if (inaccessibleModulePolicy != InaccessibleModulePolicy.SUPPRESS &&
+                inaccessibleModulePolicy != InaccessibleModulePolicy.EXCEPTION_ONLY)
+                logger.log(inaccessibleModulePolicy.logLevel,
+                        "Unable to access package" + baseClass.getModule().getName() + "/" +
+                                baseClass.getPackageName());
+            if (inaccessibleModulePolicy != InaccessibleModulePolicy.ERROR_EXCEPTION &&
+                inaccessibleModulePolicy != InaccessibleModulePolicy.EXCEPTION_ONLY)
                 return;
             else
                 throw new InaccessiblePackageException(e,

@@ -11,6 +11,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
@@ -87,8 +88,26 @@ public class RemoteThread {
         return payload;
     }
 
+    public void setInaccessibleModulePolicy(ObjectIntrospection.InaccessibleModulePolicy inaccessibleModulePolicy) {
+        operation.setInaccessibleModulePolicy(inaccessibleModulePolicy);
+    }
+
     private class Operation extends Thread {
         private Exception e;
+        private AtomicReference<ObjectIntrospection> objectIntrospection = new AtomicReference<>();
+        private AtomicReference<ObjectIntrospection.InaccessibleModulePolicy> policy = new AtomicReference<>();
+
+        public Operation() {
+            policy.set(ObjectIntrospection.InaccessibleModulePolicy.WARN);
+        }
+
+        synchronized public void
+        setInaccessibleModulePolicy(ObjectIntrospection.InaccessibleModulePolicy inaccessibleModulePolicy) {
+            if(objectIntrospection.get() != null)
+                objectIntrospection.get().setInaccessibleModulePolicy(inaccessibleModulePolicy);
+            else
+                policy.set(inaccessibleModulePolicy);
+        }
 
         @Override
         public void run() {
@@ -112,16 +131,15 @@ public class RemoteThread {
                 }
             }).filter(Objects::nonNull).collect(Collectors.toCollection(HashSet::new));
 
-            ObjectIntrospection objectIntrospection;
-
             try {
-                objectIntrospection = new ObjectIntrospection(payload, omitClasses);
+                objectIntrospection.set(new ObjectIntrospection(payload, omitClasses));
             } catch (SyntheticClassException e) {
                 throw new IllegalStateException("Class was expected to be non-synthetic");
             }
+            objectIntrospection.get().setInaccessibleModulePolicy(policy.get());
 
             response = connection.sendRequest(new LoadClassesMessage(ExecutionContext
-                    .toBytecodes(objectIntrospection.getClassesUsed())));
+                    .toBytecodes(objectIntrospection.get().getClassesUsed())));
             if (!(response instanceof OperationSuccessfulMessage))
                 throw new OperationFailedException();
 
