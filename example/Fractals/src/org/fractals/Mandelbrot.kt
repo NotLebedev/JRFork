@@ -8,17 +8,14 @@ import java.io.ObjectOutputStream
 import java.io.Serializable
 import javax.imageio.ImageIO
 
-
-class Mandelbrot : Remote {
-    private val maximumIterations = 512
-    private val width = 800
-    private val height = 800
+class Mandelbrot(private val x0: Double,
+                 private val y0: Double,
+                 private val x1: Double,
+                 private val y1: Double,
+                 private val width: Int = 800,
+                 private val height: Int = 800,
+                 private val maximumIterations: Int = 512) : Remote {
     private var img: SerializableBufferedImage? = null
-
-    private val x0: Double = -1.88488933694469 - 0.00000000000024
-    private val y0: Double = 0.00000000081387 - 0.00000000000024
-    private val x1: Double = -1.88488933694469 + 0.00000000000024
-    private val y1: Double = 0.00000000081387 + 0.00000000000024
 
     val image: BufferedImage?
         get() {
