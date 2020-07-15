@@ -117,6 +117,15 @@ public class ObjectIntrospection {
     }
 
     /**
+     * Should this introspection include annotation classes in result. True
+     * (includes) by default
+     * @param inspectAnnotations true -- include, false -- exclude
+     */
+    public void setInspectAnnotations(boolean inspectAnnotations) {
+        classIntrospection.setInspectAnnotations(inspectAnnotations);
+    }
+
+    /**
      * This method will inspect all data in contained class and determine all classes used in fields with inheritance
      * taking place (e.g. if an Integer is stored in Object field Integer class will be determined) and do so
      * recursively

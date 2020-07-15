@@ -17,6 +17,7 @@ public class ClassIntrospection extends ClassVisitor {
     private final List<ClassNotFoundException> exceptions;
     private final MethodIntrospection methodIntrospection;
     private final FieldIntrospection fieldIntrospection;
+    private boolean inspectAnnotations;
 
     public ClassIntrospection(Class<?> clazz, Set<Class<?>> omitClasses) throws SyntheticClassException {
         super(Opcodes.ASM7);
@@ -29,6 +30,7 @@ public class ClassIntrospection extends ClassVisitor {
         methodIntrospection = new MethodIntrospection();
         fieldIntrospection = new FieldIntrospection();
         this.omitClasses = new HashSet<>(omitClasses);
+        this.inspectAnnotations = true;
     }
 
     public Set<Class<?>> getUsedClasses() throws IOException, ClassNotFoundException {
@@ -40,6 +42,17 @@ public class ClassIntrospection extends ClassVisitor {
             throw exceptions.get(0);
         classesKnown.removeAll(omitClasses);
         return classesKnown;
+    }
+
+    /**
+     * Should this introspection include annotation classes in result. True
+     * (includes) by default
+     * @param inspectAnnotations true -- include, false -- exclude
+     */
+    public void setInspectAnnotations(boolean inspectAnnotations) {
+        this.inspectAnnotations = inspectAnnotations;
+        methodIntrospection.setInspectAnnotations(inspectAnnotations);
+        fieldIntrospection.setInspectAnnotations(inspectAnnotations);
     }
 
     @Override
@@ -71,13 +84,15 @@ public class ClassIntrospection extends ClassVisitor {
 
     @Override
     public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
-        ldc(descriptor);
+        if(inspectAnnotations)
+            ldc(descriptor);
         return super.visitAnnotation(descriptor, visible);
     }
 
     @Override
     public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String descriptor, boolean visible) {
-        ldc(descriptor);
+        if(inspectAnnotations)
+            ldc(descriptor);
         return super.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
     }
 
