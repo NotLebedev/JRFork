@@ -105,8 +105,7 @@ public class RemoteThread {
         setInaccessibleModulePolicy(ObjectIntrospection.InaccessibleModulePolicy inaccessibleModulePolicy) {
             if(objectIntrospection.get() != null)
                 objectIntrospection.get().setInaccessibleModulePolicy(inaccessibleModulePolicy);
-            else
-                policy.set(inaccessibleModulePolicy);
+            policy.set(inaccessibleModulePolicy);
         }
 
         @Override
