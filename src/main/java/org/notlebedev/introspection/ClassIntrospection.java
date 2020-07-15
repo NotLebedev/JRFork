@@ -143,6 +143,7 @@ public class ClassIntrospection extends ClassVisitor {
         usedClasses.forEach(aClass -> {
             try {
                 var introspection = new ClassIntrospection(aClass, classesKnown);
+                introspection.setInspectAnnotations(inspectAnnotations);
                 exceptions.addAll(introspection.getExceptions());
                 classesKnown.addAll(introspection.getUsedClasses());
             } catch (SyntheticClassException | IOException | ClassNotFoundException ignored) {
