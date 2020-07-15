@@ -11,6 +11,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -88,14 +89,34 @@ public class RemoteThread {
         return payload;
     }
 
+    /**
+     * Set behavior in case module can not be accessed for introspection.
+     * This can be set to info level, or totally suppressed in case
+     * inaccessibility of modules is expected and is used as a stop for
+     * introspection, or to error and error + exception if such behavior is
+     * not desired
+     *
+     * @param inaccessibleModulePolicy check {@link ObjectIntrospection.InaccessibleModulePolicy}
+     *                                 for description of options
+     */
     public void setInaccessibleModulePolicy(ObjectIntrospection.InaccessibleModulePolicy inaccessibleModulePolicy) {
         operation.setInaccessibleModulePolicy(inaccessibleModulePolicy);
+    }
+
+    /**
+     * Should annotations classes be sent to remote VM, or should they be ignored
+     * true by default
+     * @param inspectAnnotations true -- send, false -- ignore
+     */
+    public void setInspectAnnotations(boolean inspectAnnotations) {
+        operation.setInspectAnnotations(inspectAnnotations);
     }
 
     private class Operation extends Thread {
         private Exception e;
         private AtomicReference<ObjectIntrospection> objectIntrospection = new AtomicReference<>();
         private AtomicReference<ObjectIntrospection.InaccessibleModulePolicy> policy = new AtomicReference<>();
+        private AtomicBoolean inspectAnnotations = new AtomicBoolean(true);
 
         public Operation() {
             policy.set(ObjectIntrospection.InaccessibleModulePolicy.WARN);
@@ -105,8 +126,13 @@ public class RemoteThread {
         setInaccessibleModulePolicy(ObjectIntrospection.InaccessibleModulePolicy inaccessibleModulePolicy) {
             if(objectIntrospection.get() != null)
                 objectIntrospection.get().setInaccessibleModulePolicy(inaccessibleModulePolicy);
-            else
-                policy.set(inaccessibleModulePolicy);
+            policy.set(inaccessibleModulePolicy);
+        }
+
+        synchronized public void setInspectAnnotations(boolean inspectAnnotations) {
+            if(objectIntrospection.get() != null)
+                objectIntrospection.get().setInspectAnnotations(inspectAnnotations);
+            this.inspectAnnotations.set(inspectAnnotations);
         }
 
         @Override
@@ -137,6 +163,7 @@ public class RemoteThread {
                 throw new IllegalStateException("Class was expected to be non-synthetic");
             }
             objectIntrospection.get().setInaccessibleModulePolicy(policy.get());
+            objectIntrospection.get().setInspectAnnotations(inspectAnnotations.get());
 
             response = connection.sendRequest(new LoadClassesMessage(ExecutionContext
                     .toBytecodes(objectIntrospection.get().getClassesUsed())));

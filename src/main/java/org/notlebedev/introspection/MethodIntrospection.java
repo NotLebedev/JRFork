@@ -10,11 +10,22 @@ import java.util.Set;
 class MethodIntrospection extends MethodVisitor {
     private final Set<Class<?>> usedClasses;
     private final List<ClassNotFoundException> exceptions;
+    private boolean inspectAnnotations;
 
     MethodIntrospection() {
         super(Opcodes.ASM7);
         usedClasses = new HashSet<>();
         exceptions = new ArrayList<>();
+        this.inspectAnnotations = true;
+    }
+
+    /**
+     * Should this introspection include annotation classes in result. True
+     * (includes) by default
+     * @param inspectAnnotations true -- include, false -- exclude
+     */
+    public void setInspectAnnotations(boolean inspectAnnotations) {
+        this.inspectAnnotations = inspectAnnotations;
     }
 
     @Override
@@ -43,13 +54,15 @@ class MethodIntrospection extends MethodVisitor {
 
     @Override
     public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
-        ldc(descriptor);
+        if(inspectAnnotations)
+            ldc(descriptor);
         return super.visitAnnotation(descriptor, visible);
     }
 
     @Override
     public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String descriptor, boolean visible) {
-        ldc(descriptor);
+        if(inspectAnnotations)
+            ldc(descriptor);
         return super.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
     }
 
@@ -61,7 +74,8 @@ class MethodIntrospection extends MethodVisitor {
 
     @Override
     public AnnotationVisitor visitParameterAnnotation(int parameter, String descriptor, boolean visible) {
-        ldc(descriptor);
+        if(inspectAnnotations)
+            ldc(descriptor);
         return super.visitParameterAnnotation(parameter, descriptor, visible);
     }
 
@@ -73,13 +87,15 @@ class MethodIntrospection extends MethodVisitor {
 
     @Override
     public AnnotationVisitor visitInsnAnnotation(int typeRef, TypePath typePath, String descriptor, boolean visible) {
-        ldc(descriptor);
+        if(inspectAnnotations)
+            ldc(descriptor);
         return super.visitInsnAnnotation(typeRef, typePath, descriptor, visible);
     }
 
     @Override
     public AnnotationVisitor visitTryCatchAnnotation(int typeRef, TypePath typePath, String descriptor, boolean visible) {
-        ldc(descriptor);
+        if(inspectAnnotations)
+            ldc(descriptor);
         return super.visitTryCatchAnnotation(typeRef, typePath, descriptor, visible);
     }
 
@@ -91,7 +107,8 @@ class MethodIntrospection extends MethodVisitor {
 
     @Override
     public AnnotationVisitor visitLocalVariableAnnotation(int typeRef, TypePath typePath, Label[] start, Label[] end, int[] index, String descriptor, boolean visible) {
-        ldc(descriptor);
+        if(inspectAnnotations)
+            ldc(descriptor);
         return super.visitLocalVariableAnnotation(typeRef, typePath, start, end, index, descriptor, visible);
     }
 
