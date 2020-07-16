@@ -23,7 +23,8 @@ fun main() {
             centerY - radius,
             centerX - radius + (2 * radius / threadCount) * (it + 1),
             centerY + radius,
-            height = imageHeight, width = imageWidth / threadCount)
+            height = imageHeight, width = imageWidth / threadCount +
+                (if(imageWidth % threadCount > it)  1 else 0))
     })
 
     val threads:Array<RemoteThread> = Array(threadCount, init = {
@@ -47,10 +48,12 @@ fun main() {
 
     val result = BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB)
     val graphics = result.graphics
+    var pastedWidth = 0
 
     for(i in 0 until threadCount) {
-        val mandelbrot = mandelbrots[i]
-        graphics.drawImage(mandelbrot.image, imageWidth / threadCount * i, 0, null)
+        val image:BufferedImage = mandelbrots[i].image!!
+        graphics.drawImage(image, pastedWidth, 0, null)
+        pastedWidth += image.width
     }
     graphics.dispose()
 
