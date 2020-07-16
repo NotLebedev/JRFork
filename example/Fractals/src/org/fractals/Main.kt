@@ -2,34 +2,51 @@ package org.fractals
 
 import org.notlebedev.RemoteThread
 import org.notlebedev.introspection.ObjectIntrospection
-import org.notlebedev.networking.MasterConnection
 import org.notlebedev.networking.SocketMasterConnection
 import java.io.File
 import java.net.InetAddress
 import javax.imageio.ImageIO
 
-
 fun main() {
-    val fileOut = File("img.png")
-    val mandelbrot = Mandelbrot(-1.88488933694469 - 0.00000000000024,
-            0.00000000081387 - 0.00000000000024,
-            -1.88488933694469 + 0.00000000000024,
-            0.00000000081387 + 0.00000000000024)
+    val imageWidth = 1024
+    val imageHeight = 1024
 
-    val connection: MasterConnection = SocketMasterConnection(InetAddress.getLocalHost(), 4040, 8081)
-    val remoteThread = RemoteThread(connection, mandelbrot)
+    val centerX = -1.88488933694469
+    val centerY = 0.00000000081387
+    val radius = 0.00000000000024
 
-    remoteThread.start()
-    remoteThread.setInaccessibleModulePolicy(ObjectIntrospection.InaccessibleModulePolicy.WARN)
+    val threadCount = 4
+
+    val mandelbrots:Array<Mandelbrot> = Array(threadCount, init = {
+        Mandelbrot(centerX - radius + (2 * radius / threadCount) * it,
+            centerY - radius,
+            centerX - radius + (2 * radius / threadCount) * (it + 1),
+            centerY + radius,
+            height = imageHeight, width = imageWidth / threadCount)
+    })
+
+    val threads:Array<RemoteThread> = Array(threadCount, init = {
+        RemoteThread(SocketMasterConnection(InetAddress.getLocalHost(), 4040 + it, 8081 + it),
+            mandelbrots[it])
+                .apply { this.setInaccessibleModulePolicy(ObjectIntrospection.InaccessibleModulePolicy.INFO) }
+                .apply { this.setInspectAnnotations(false) }
+    })
+
+    threads.forEach { it.start() }
 
     println("Thread is running remotely")
 
-    remoteThread.join()
-    if (!remoteThread.isSuccessful) {
-        remoteThread.exception.printStackTrace()
-        return
+    threads.forEach { it.join() }
+    for(thread in threads) {
+        if (!thread.isSuccessful) {
+            thread.exception.printStackTrace()
+            return
+        }
     }
-
-    mandelbrot.image?.let { ImageIO.write(it, "png", fileOut) }
-            ?: throw IllegalStateException("Expected to be not null")
+    for(i in 0 until threadCount) {
+        val mandelbrot = mandelbrots[i]
+        val fileOut1 = File("img${i}.png")
+        mandelbrot.image?.let { ImageIO.write(it, "png", fileOut1) }
+                ?: throw IllegalStateException("Expected to be not null")
+    }
 }
