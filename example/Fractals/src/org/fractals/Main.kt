@@ -3,6 +3,7 @@ package org.fractals
 import org.notlebedev.RemoteThread
 import org.notlebedev.introspection.ObjectIntrospection
 import org.notlebedev.networking.SocketMasterConnection
+import java.awt.image.BufferedImage
 import java.io.File
 import java.net.InetAddress
 import javax.imageio.ImageIO
@@ -43,10 +44,16 @@ fun main() {
             return
         }
     }
+
+    val result = BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB)
+    val graphics = result.graphics
+
     for(i in 0 until threadCount) {
         val mandelbrot = mandelbrots[i]
-        val fileOut1 = File("img${i}.png")
-        mandelbrot.image?.let { ImageIO.write(it, "png", fileOut1) }
-                ?: throw IllegalStateException("Expected to be not null")
+        graphics.drawImage(mandelbrot.image, imageWidth / threadCount * i, 0, null)
     }
+    graphics.dispose()
+
+    val fileOut = File("img.png")
+    ImageIO.write(result, "png", fileOut)
 }
