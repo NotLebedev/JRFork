@@ -122,7 +122,9 @@ public class ClassIntrospection extends ClassVisitor {
     private void loadNames(String... names) {
         for (String name : names) {
             try {
-                usedClasses.addAll(ClassIntrospection.allClassNames(name));
+                Class<?> clazz = ClassIntrospection.forName(name);
+                if(clazz != null)
+                    usedClasses.add(clazz);
             } catch (ClassNotFoundException e) {
                 exceptions.add(e);
             }
@@ -130,7 +132,6 @@ public class ClassIntrospection extends ClassVisitor {
     }
 
     private final static Pattern pattern = Pattern.compile("L(.*?)[;<]");
-    private final static Pattern pattern2 = Pattern.compile("^([A-Za-z_0-9\\/]*)$");
 
     static Set<Class<?>> allClassNames(String str) throws ClassNotFoundException {
         var result = new HashSet<Class<?>>();
@@ -141,16 +142,25 @@ public class ClassIntrospection extends ClassVisitor {
             if (!JDKClassTester.isJDK(Class.forName(matcher.group(1).replace("/", "."))))
                 result.add(Class.forName(matcher.group(1).replace("/", ".")));
         }
+
+        return result;
+    }
+
+    private final static Pattern pattern2 = Pattern.compile("^([A-Za-z_0-9\\/]*)$");
+
+    static Class<?> forName(String str) throws ClassNotFoundException {
+        if(str == null)
+            return null;
         Matcher matcher1 = pattern2.matcher(str);
-        while (matcher1.find()) {
+        if (matcher1.find()) {
             char start = matcher1.group(1).charAt(0);
             if(matcher1.group(1).length() == 1 && (start == 'Z' || start == 'B' || start == 'C' || start == 'J' ||
                     start == 'S' || start == 'I' || start == 'F' || start == 'D')) //Check if this class is a primitive
-                continue;
+                return null;
             if (!JDKClassTester.isJDK(Class.forName(matcher1.group(1).replace("/", "."))))
-                result.add(Class.forName(matcher1.group(1).replace("/", ".")));
+                return Class.forName(matcher1.group(1).replace("/", "."));
         }
-        return result;
+        return null;
     }
 
     @Override
