@@ -57,48 +57,50 @@ public class ClassIntrospection extends ClassVisitor {
 
     @Override
     public FieldVisitor visitField(int access, String name, String descriptor, String signature, Object value) {
-        ldc(descriptor, signature);
+        loadDescriptors(descriptor, signature);
         return fieldIntrospection;
     }
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
-        ldc(descriptor);
+        loadDescriptors(descriptor);
         return methodIntrospection;
     }
 
     @Override
     public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-        ldc(signature, superName);
+        loadDescriptors(signature);
+        loadNames(name, superName);
         for (String anInterface : interfaces) {
-            ldc(anInterface);
+            loadNames(anInterface);
         }
         super.visit(version, access, name, signature, superName, interfaces);
     }
 
     @Override
     public void visitOuterClass(String owner, String name, String descriptor) {
-        ldc(owner, descriptor);
+        loadDescriptors(descriptor);
+        loadNames(name);
         super.visitOuterClass(owner, name, descriptor);
     }
 
     @Override
     public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
         if(inspectAnnotations)
-            ldc(descriptor);
+            loadDescriptors(descriptor);
         return super.visitAnnotation(descriptor, visible);
     }
 
     @Override
     public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String descriptor, boolean visible) {
         if(inspectAnnotations)
-            ldc(descriptor);
+            loadDescriptors(descriptor);
         return super.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
     }
 
     @Override
     public void visitInnerClass(String name, String outerName, String innerName, int access) {
-        ldc(name);
+        loadNames(name);
         super.visitInnerClass(name, outerName, innerName, access);
     }
 
@@ -107,10 +109,20 @@ public class ClassIntrospection extends ClassVisitor {
      *
      * @param descriptors descriptors with classes in format Lclass/path/name
      */
-    private void ldc(String... descriptors) {
+    private void loadDescriptors(String... descriptors) {
         for (String descriptor : descriptors) {
             try {
                 usedClasses.addAll(ClassIntrospection.allClassNames(descriptor));
+            } catch (ClassNotFoundException e) {
+                exceptions.add(e);
+            }
+        }
+    }
+
+    private void loadNames(String... names) {
+        for (String name : names) {
+            try {
+                usedClasses.addAll(ClassIntrospection.allClassNames(name));
             } catch (ClassNotFoundException e) {
                 exceptions.add(e);
             }
