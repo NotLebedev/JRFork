@@ -118,6 +118,7 @@ public class ClassIntrospection extends ClassVisitor {
     }
 
     private final static Pattern pattern = Pattern.compile("L(.*?)[;<]");
+    private final static Pattern pattern2 = Pattern.compile("^([A-Za-z_0-9\\/]*)$");
 
     static Set<Class<?>> allClassNames(String str) throws ClassNotFoundException {
         var result = new HashSet<Class<?>>();
@@ -127,6 +128,15 @@ public class ClassIntrospection extends ClassVisitor {
         while (matcher.find()) {
             if (!JDKClassTester.isJDK(Class.forName(matcher.group(1).replace("/", "."))))
                 result.add(Class.forName(matcher.group(1).replace("/", ".")));
+        }
+        Matcher matcher1 = pattern2.matcher(str);
+        while (matcher1.find()) {
+            char start = matcher1.group(1).charAt(0);
+            if(matcher1.group(1).length() == 1 && (start == 'Z' || start == 'B' || start == 'C' || start == 'J' ||
+                    start == 'S' || start == 'I' || start == 'F' || start == 'D')) //Check if this class is a primitive
+                continue;
+            if (!JDKClassTester.isJDK(Class.forName(matcher1.group(1).replace("/", "."))))
+                result.add(Class.forName(matcher1.group(1).replace("/", ".")));
         }
         return result;
     }

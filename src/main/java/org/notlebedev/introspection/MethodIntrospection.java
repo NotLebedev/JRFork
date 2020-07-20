@@ -36,7 +36,7 @@ class MethodIntrospection extends MethodVisitor {
 
     @Override
     public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
-        ldc(descriptor);
+        ldc(descriptor, owner);
         super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
     }
 
