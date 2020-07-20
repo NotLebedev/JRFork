@@ -119,6 +119,10 @@ public class ClassIntrospection extends ClassVisitor {
         }
     }
 
+    /**
+     * Load classes specified in class name in {@link ClassIntrospection#usedClasses} {@link Set}
+     * @param names class names in formats class/path/Name or class.path.Name
+     */
     private void loadNames(String... names) {
         for (String name : names) {
             try {
@@ -146,7 +150,7 @@ public class ClassIntrospection extends ClassVisitor {
         return result;
     }
 
-    private final static Pattern pattern2 = Pattern.compile("^([A-Za-z_0-9\\/]*)$");
+    private final static Pattern pattern2 = Pattern.compile("^([A-Za-z_0-9\\/\\.]*)$");
 
     static Class<?> forName(String str) throws ClassNotFoundException {
         if(str == null)
