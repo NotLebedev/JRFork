@@ -34,14 +34,14 @@ class FieldIntrospection extends FieldVisitor {
     @Override
     public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
         if(inspectAnnotations)
-            ldc(descriptor);
+            loadDescriptors(descriptor);
         return super.visitAnnotation(descriptor, visible);
     }
 
     @Override
     public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String descriptor, boolean visible) {
         if(inspectAnnotations)
-            ldc(descriptor);
+            loadDescriptors(descriptor);
         return super.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
     }
 
@@ -50,7 +50,7 @@ class FieldIntrospection extends FieldVisitor {
      *
      * @param descriptors descriptors with classes in format Lclass/path/name
      */
-    private void ldc(String... descriptors) {
+    private void loadDescriptors(String... descriptors) {
         for (String descriptor : descriptors) {
             try {
                 usedClasses.addAll(ClassIntrospection.forDescriptor(descriptor));
