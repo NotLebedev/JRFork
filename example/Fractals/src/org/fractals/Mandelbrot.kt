@@ -7,6 +7,7 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.Serializable
 import javax.imageio.ImageIO
+import kotlin.math.roundToInt
 
 class Mandelbrot(private val x0: Double,
                  private val y0: Double,
@@ -39,9 +40,23 @@ class Mandelbrot(private val x0: Double,
                             .also { zx = zx * zx - zy * zy + cX }
                     iter--
                 }
-                img!!.setRGB(x, y, iter or (iter shl 8))
+                img!!.setRGB(x, y, rgbToInt(iter.toDouble() / maximumIterations,
+                        iter.toDouble() / maximumIterations,
+                        iter.toDouble() / maximumIterations))
             }
         }
+    }
+
+    fun rgbToInt(Red: Double, Green: Double, Blue: Double): Int {
+        var R = (255 * Red).roundToInt()
+        var G = (255 * Green).roundToInt()
+        var B = (255 * Blue).roundToInt()
+
+        R = R shl 16 and 0x00FF0000
+        G = G shl 8 and 0x0000FF00
+        B = B and 0x000000FF
+
+        return -0x1000000 or R or G or B
     }
 
     private class SerializableBufferedImage(width: Int, height: Int, imageType: Int) : Serializable {
