@@ -18,13 +18,29 @@ fun main() {
 
     val threadCount = 4
 
+    val maxIterations = 1024
+    val redGradient: (Int) -> Double = {iter: Int ->
+        val x = iter.toDouble() / maxIterations
+        val y = -7.1 * x * x + 5 * x
+        if(y > 0) y else 0.0}
+    val greenGradient: (Int) -> Double = {iter: Int ->
+        val x = iter.toDouble() / maxIterations
+        val y = 2.1 * x * x - 2.4 * x + 0.5
+        if(y > 0) y else 0.0}
+    val blueGradient: (Int) -> Double = {iter: Int ->
+        iter.toDouble() / maxIterations}
+
     val mandelbrots:Array<Mandelbrot> = Array(threadCount, init = {
         Mandelbrot(centerX - radius + (2 * radius / threadCount) * it,
             centerY - radius,
             centerX - radius + (2 * radius / threadCount) * (it + 1),
             centerY + radius,
             height = imageHeight, width = imageWidth / threadCount +
-                (if(imageWidth % threadCount > it)  1 else 0))
+                (if(imageWidth % threadCount > it)  1 else 0),
+            maximumIterations = maxIterations,
+            colorRed = redGradient,
+            colorGreen = greenGradient,
+            colorBlue = blueGradient)
     })
 
     val threads:Array<RemoteThread> = Array(threadCount, init = {
