@@ -120,7 +120,7 @@ class MethodIntrospection extends MethodVisitor {
     private void ldc(String... descriptors) {
         for (String descriptor : descriptors) {
             try {
-                usedClasses.addAll(ClassIntrospection.allClassNames(descriptor));
+                usedClasses.addAll(ClassIntrospection.forDescriptor(descriptor));
             } catch (ClassNotFoundException e) {
                 exceptions.add(e);
             }

@@ -112,7 +112,7 @@ public class ClassIntrospection extends ClassVisitor {
     private void loadDescriptors(String... descriptors) {
         for (String descriptor : descriptors) {
             try {
-                usedClasses.addAll(ClassIntrospection.allClassNames(descriptor));
+                usedClasses.addAll(ClassIntrospection.forDescriptor(descriptor));
             } catch (ClassNotFoundException e) {
                 exceptions.add(e);
             }
@@ -137,7 +137,7 @@ public class ClassIntrospection extends ClassVisitor {
 
     private final static Pattern pattern = Pattern.compile("L(.*?)[;<]");
 
-    static Set<Class<?>> allClassNames(String str) throws ClassNotFoundException {
+    static Set<Class<?>> forDescriptor(String str) throws ClassNotFoundException {
         var result = new HashSet<Class<?>>();
         if (str == null)
             return result;
