@@ -150,7 +150,7 @@ public class ClassIntrospection extends ClassVisitor {
         return result;
     }
 
-    private final static Pattern pattern2 = Pattern.compile("^([A-Za-z_0-9\\/\\.]*)$");
+    private final static Pattern pattern2 = Pattern.compile("^([A-Za-z_0-9\\/\\.$]*)$");
 
     static Class<?> forName(String str) throws ClassNotFoundException {
         if(str == null)
