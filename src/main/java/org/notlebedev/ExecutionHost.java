@@ -1,5 +1,6 @@
 package org.notlebedev;
 
+import org.notlebedev.introspection.ObjectIntrospection;
 import org.notlebedev.networking.SlaveConnection;
 import org.notlebedev.networking.messages.*;
 
@@ -8,6 +9,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.instrument.Instrumentation;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Example slave that can be used as a basis for a remote execution server.
@@ -23,6 +26,9 @@ public class ExecutionHost implements Runnable {
     private final ByteArrayClassLoader threadClassLoader;
     private final SlaveConnection connection;
     private Instrumentation instrumentation;
+
+    public static final Logger logger = Logger.getLogger(
+            ObjectIntrospection.class.getName());
 
     /**
      * @param connection fresh new connection to Master
@@ -58,7 +64,8 @@ public class ExecutionHost implements Runnable {
                 var response = new SendExecutionContextMessage(context);
                 connection.sendResponse(response);
             } else if (message instanceof LoadClassesMessage) {
-                ((LoadClassesMessage) message).getClassBytecodes().forEach((str, bytes) -> System.out.println(str));
+                ((LoadClassesMessage) message).getClassBytecodes().forEach((str, bytes) ->
+                        logger.log(Level.FINE, "Loading class " + str));
                 ((LoadClassesMessage) message).getClassBytecodes().forEach(threadClassLoader::addClass);
                 connection.sendResponse(new OperationSuccessfulMessage());
             } else if (message instanceof SendObjectsMessage) {
