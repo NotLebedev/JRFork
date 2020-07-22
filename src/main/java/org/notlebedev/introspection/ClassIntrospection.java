@@ -1,5 +1,7 @@
 package org.notlebedev.introspection;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import org.notlebedev.introspection.exceptions.SyntheticClassException;
 import org.objectweb.asm.*;
 
@@ -19,6 +21,9 @@ public class ClassIntrospection extends ClassVisitor {
     private final FieldIntrospection fieldIntrospection;
     private boolean inspectAnnotations;
 
+    private static Cache<IntrospectionCacheKey<Class<?>>, Set<Class<?>>> cache
+            = CacheBuilder.newBuilder().softValues().build();
+
     public ClassIntrospection(Class<?> clazz, Set<Class<?>> omitClasses) throws SyntheticClassException {
         super(Opcodes.ASM7);
         usedClasses = new HashSet<>();
@@ -34,13 +39,20 @@ public class ClassIntrospection extends ClassVisitor {
     }
 
     public Set<Class<?>> getUsedClasses() throws IOException, ClassNotFoundException {
-        InputStream byteIn = clazz.getResourceAsStream(
-                clazz.getTypeName().replace(clazz.getPackageName() + ".", "") + ".class");
-        var cr = new ClassReader(byteIn);
-        cr.accept(this, 0);
-        if (!exceptions.isEmpty())
-            throw exceptions.get(0);
-        classesKnown.removeAll(omitClasses);
+        Set<Class<?>> cacheAttempt = cache.getIfPresent(new IntrospectionCacheKey<Class<?>>(clazz, omitClasses));
+        if(cacheAttempt != null) {
+            classesKnown.addAll(cacheAttempt);
+            classesKnown.removeAll(omitClasses);
+        } else {
+            InputStream byteIn = clazz.getResourceAsStream(
+                    clazz.getTypeName().replace(clazz.getPackageName() + ".", "") + ".class");
+            var cr = new ClassReader(byteIn);
+            cr.accept(this, 0);
+            if (!exceptions.isEmpty())
+                throw exceptions.get(0);
+            classesKnown.removeAll(omitClasses);
+            cache.put(new IntrospectionCacheKey<>(clazz, omitClasses), classesKnown);
+        }
         return classesKnown;
     }
 
