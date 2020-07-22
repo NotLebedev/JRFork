@@ -1,9 +1,11 @@
 package org.fractals
 
 import org.notlebedev.Remote
-import java.awt.Color
 import java.awt.image.BufferedImage
-import java.io.*
+import java.io.IOException
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.io.Serializable
 import javax.imageio.ImageIO
 import kotlin.math.roundToInt
 
