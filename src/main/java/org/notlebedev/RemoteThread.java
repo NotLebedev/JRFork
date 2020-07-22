@@ -114,9 +114,9 @@ public class RemoteThread {
 
     private class Operation extends Thread {
         private Exception e;
-        private AtomicReference<ObjectIntrospection> objectIntrospection = new AtomicReference<>();
-        private AtomicReference<ObjectIntrospection.InaccessibleModulePolicy> policy = new AtomicReference<>();
-        private AtomicBoolean inspectAnnotations = new AtomicBoolean(true);
+        private final AtomicReference<ObjectIntrospection> objectIntrospection = new AtomicReference<>();
+        private final AtomicReference<ObjectIntrospection.InaccessibleModulePolicy> policy = new AtomicReference<>();
+        private final AtomicBoolean inspectAnnotations = new AtomicBoolean(true);
 
         public Operation() {
             policy.set(ObjectIntrospection.InaccessibleModulePolicy.WARN);

@@ -47,16 +47,16 @@ class Mandelbrot(private val x0: Double,
         }
     }
 
-    fun rgbToInt(Red: Double, Green: Double, Blue: Double): Int {
-        var R = (255 * Red).roundToInt()
-        var G = (255 * Green).roundToInt()
-        var B = (255 * Blue).roundToInt()
+    private fun rgbToInt(Red: Double, Green: Double, Blue: Double): Int {
+        var r = (255 * Red).roundToInt()
+        var g = (255 * Green).roundToInt()
+        var b = (255 * Blue).roundToInt()
 
-        R = R shl 16 and 0x00FF0000
-        G = G shl 8 and 0x0000FF00
-        B = B and 0x000000FF
+        r = r shl 16 and 0x00FF0000
+        g = g shl 8 and 0x0000FF00
+        b = b and 0x000000FF
 
-        return -0x1000000 or R or G or B
+        return -0x1000000 or r or g or b
     }
 
     private class SerializableBufferedImage(width: Int, height: Int, imageType: Int) : Serializable {
