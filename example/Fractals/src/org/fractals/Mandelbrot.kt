@@ -1,11 +1,9 @@
 package org.fractals
 
 import org.notlebedev.Remote
+import java.awt.Color
 import java.awt.image.BufferedImage
-import java.io.IOException
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
-import java.io.Serializable
+import java.io.*
 import javax.imageio.ImageIO
 import kotlin.math.roundToInt
 
@@ -15,7 +13,10 @@ class Mandelbrot(private val x0: Double,
                  private val y1: Double,
                  private val width: Int = 800,
                  private val height: Int = 800,
-                 private val maximumIterations: Int = 512) : Remote {
+                 private val maximumIterations: Int = 512,
+                 private val colorRed: (Int) -> Double = { it.toDouble() / maximumIterations },
+                 private val colorGreen: (Int) -> Double = { it.toDouble() / maximumIterations },
+                 private val colorBlue: (Int) -> Double = { it.toDouble() / maximumIterations }) : Remote {
     private var img: SerializableBufferedImage? = null
 
     val image: BufferedImage?
@@ -40,9 +41,7 @@ class Mandelbrot(private val x0: Double,
                             .also { zx = zx * zx - zy * zy + cX }
                     iter--
                 }
-                img!!.setRGB(x, y, rgbToInt(iter.toDouble() / maximumIterations,
-                        iter.toDouble() / maximumIterations,
-                        iter.toDouble() / maximumIterations))
+                img!!.setRGB(x, y, if(iter != 0) rgbToInt(colorRed(iter), colorGreen(iter), colorBlue(iter)) else 0)
             }
         }
     }
