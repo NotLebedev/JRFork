@@ -21,7 +21,7 @@ public class ClassIntrospection extends ClassVisitor {
     private final FieldIntrospection fieldIntrospection;
     private boolean inspectAnnotations;
 
-    private static Cache<IntrospectionCacheKey<Class<?>>, Set<Class<?>>> cache
+    private static final Cache<IntrospectionCacheKey<Class<?>>, Set<Class<?>>> cache
             = CacheBuilder.newBuilder().softValues().build();
 
     public ClassIntrospection(Class<?> clazz, Set<Class<?>> omitClasses) throws SyntheticClassException {
@@ -39,7 +39,7 @@ public class ClassIntrospection extends ClassVisitor {
     }
 
     public Set<Class<?>> getUsedClasses() throws IOException, ClassNotFoundException {
-        Set<Class<?>> cacheAttempt = cache.getIfPresent(new IntrospectionCacheKey<Class<?>>(clazz, omitClasses));
+        Set<Class<?>> cacheAttempt = cache.getIfPresent(new IntrospectionCacheKey<Class<?>>(clazz, omitClasses, true));
         if(cacheAttempt != null) {
             classesKnown.addAll(cacheAttempt);
             classesKnown.removeAll(omitClasses);
@@ -51,7 +51,7 @@ public class ClassIntrospection extends ClassVisitor {
             if (!exceptions.isEmpty())
                 throw exceptions.get(0);
             classesKnown.removeAll(omitClasses);
-            cache.put(new IntrospectionCacheKey<>(clazz, omitClasses), classesKnown);
+            cache.put(new IntrospectionCacheKey<>(clazz, omitClasses, false), classesKnown);
         }
         return classesKnown;
     }
