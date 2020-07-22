@@ -26,7 +26,7 @@ class IntrospectionCacheKey<C> {
             return key.equals(that.key) &&
                     that.omitClasses.containsAll(omitClasses);
         //Classes loaded can be used if classes omitted are subset of classes omitted
-        //in request, hovewer, than excessive classes must be removed from result
+        //in request, however, than excessive classes must be removed from result
         //The mechanism with isSample field is used to determine direction of
         //inclusion
     }
